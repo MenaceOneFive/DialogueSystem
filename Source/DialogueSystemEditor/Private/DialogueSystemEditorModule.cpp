@@ -1,26 +1,17 @@
 #include "DialogueSystemEditorModule.h"
-#include "AssetToolsModule.h"
-#include "ISequencerModule.h"
-#include "../Public/MovieScene/TrackEditor/DialogueTrackEditor.h"
-#include "../Public/MovieScene/TrackEditor/PlayerControlTrackEditor.h"
-#include "../Public/MovieScene/TrackEditor/StoryTrackEditor.h"
-#include "Character/DialogueCharacterAsset.h"
-#include "Graph/DialogueEdGraphNodes.h"
-#include "Graph/DialogueGraphAsset.h"
+
+#include "Graph/DialogueGraphAssetFactory.h"
 #include "Graph/DialogueGraphEditorCommands.h"
 #include "Graph/DialogueGraphPanelNodeFactory.h"
-#include "Graph/Slate/PropertyEditor/DialogueGraphDetailCustomization.h"
-#include "Graph/Slate/PropertyEditor/DialogueLineCreationPromptDetail.h"
-#include "Graph/Slate/PropertyEditor/GraphEditorDetailCustomization.h"
-
+#include "MovieScene/TrackEditor/DialogueLineTrackEditor.h"
+#include "MovieScene/TrackEditor/DialogueTrackEditor.h"
 
 void FDialogueSystemEditorModule::StartupModule()
 {
     // 시퀀서에 트랙 에디터 등록
-    ISequencerModule& SequencerModule      = FModuleManager::LoadModuleChecked<ISequencerModule>("Sequencer");
-    DialogueTrackEditorDelegateHandle      = SequencerModule.RegisterTrackEditor(FOnCreateTrackEditor::CreateStatic(&FDialogueTrackEditor::CreateTrackEditor));
-    StoryTrackEditorDelegateHandle         = SequencerModule.RegisterTrackEditor(FOnCreateTrackEditor::CreateStatic(&FStoryTrackEditor::CreateTrackEditor));
-    PlayerControlTrackEditorDelegateHandle = SequencerModule.RegisterTrackEditor(FOnCreateTrackEditor::CreateStatic(&FPlayerControlTrackEditor::CreateTrackEditor));
+    ISequencerModule& SequencerModule     = FModuleManager::LoadModuleChecked<ISequencerModule>("Sequencer");
+    DialogueLineTrackEditorDelegateHandle = SequencerModule.RegisterTrackEditor(FOnCreateTrackEditor::CreateStatic(&FDialogueLineTrackEditor::CreateTrackEditor));
+    DialogueTrackEditorDelegateHandle     = SequencerModule.RegisterTrackEditor(FOnCreateTrackEditor::CreateStatic(&FDialogueTrackEditor::CreateTrackEditor));
 
     // TODO: 모델 정의
     // SequencerModule.RegisterTrackModel(FOnCreateTrackModel::CreateStatic());
@@ -33,18 +24,19 @@ void FDialogueSystemEditorModule::StartupModule()
     GraphNodeFactory = MakeShared<FDialogueGraphPanelNodeFactory>();
     FEdGraphUtilities::RegisterVisualNodeFactory(GraphNodeFactory);
 
-    // 프로퍼티 에디터 디테일 등록
-    FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
-    PropertyModule.RegisterCustomClassLayout(UDialogueGraphAsset::StaticClass()->GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&FDialogueGraphDetailCustomization::MakeInstance));
-    PropertyModule.RegisterCustomClassLayout(UDialogueEdGraphDialogueLineNode::StaticClass()->GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&FDialogueEdDialogueLineNodeDetail::MakeInstance));
-    PropertyModule.RegisterCustomPropertyTypeLayout(FName("FDialogueLineCreationPrompt"), FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FDialogueLineCreationPromptDetailTypeCustomization::MakeInstance));
-
-
     // DialogueCharacterAsset 등록
     CharacterAssetTypeActions = MakeShared<FAssetTypeActions_DialogueCharacter>();
     AssetTools.RegisterAssetTypeActions(CharacterAssetTypeActions.ToSharedRef());
 
-    FDialogueGraphEditorCommands::Register();
+    // 에디터 커멘드 등록
+    {
+        FDialogueGraphEditorCommands::Register();
+    }
+
+    //썸네일 등록 : 캐릭터 에셋의 경우 캐릭터의 프로필 이미지가 에셋의 썸네일이 되도록 해야 한다.
+    {
+        UThumbnailManager::Get().RegisterCustomRenderer(UDialogueCharacterAsset::StaticClass(), UDialogueCharacterThumbnailRenderer::StaticClass());
+    }
 }
 
 void FDialogueSystemEditorModule::ShutdownModule()
@@ -52,6 +44,7 @@ void FDialogueSystemEditorModule::ShutdownModule()
     if ( FModuleManager::Get().IsModuleLoaded("Sequencer") )
     {
         ISequencerModule& SequencerModule = FModuleManager::LoadModuleChecked<ISequencerModule>("Sequencer");
+        SequencerModule.UnRegisterTrackEditor(DialogueLineTrackEditorDelegateHandle);
         SequencerModule.UnRegisterTrackEditor(DialogueTrackEditorDelegateHandle);
         SequencerModule.UnRegisterTrackEditor(StoryTrackEditorDelegateHandle);
         SequencerModule.UnRegisterTrackEditor(PlayerControlTrackEditorDelegateHandle);
@@ -70,7 +63,17 @@ void FDialogueSystemEditorModule::ShutdownModule()
         PropertyModule.UnregisterCustomPropertyTypeLayout(FName("FDialogueLineCreationPrompt"));
     }
 
-    FDialogueGraphEditorCommands::Unregister();
+    // 에디터 커멘드 등록 해제
+    {
+        FDialogueGraphEditorCommands::Unregister();
+    }
+
+    // 썸네일 등록 해제
+    if ( FModuleManager::Get().IsModuleLoaded("ThumbnailManager") )
+    {
+        UThumbnailManager::Get().UnregisterCustomRenderer(UDialogueCharacterAsset::StaticClass());
+    }
+
     FEdGraphUtilities::UnregisterVisualNodeFactory(GraphNodeFactory);
 }
 

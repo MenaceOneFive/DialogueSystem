@@ -2,6 +2,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ISequencerModule.h"
 #include "Character/DialogueCharacterAsset.h"
 #include "Modules/ModuleManager.h"
 #include "WorkflowOrientedApp/WorkflowTabManager.h"
@@ -19,8 +20,10 @@ public:
 private:
     // 시퀀서 통합을 위한 델리게이트 핸들
     FDelegateHandle DialogueTrackEditorDelegateHandle;
+    FDelegateHandle DialogueLineTrackEditorDelegateHandle;
     FDelegateHandle StoryTrackEditorDelegateHandle;
     FDelegateHandle PlayerControlTrackEditorDelegateHandle;
+
     TSharedPtr<FDocumentTracker> DocumentManager;
     TSharedPtr<FDialogueGraphPanelNodeFactory> GraphNodeFactory;
 

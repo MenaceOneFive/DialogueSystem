@@ -3,8 +3,9 @@
 
 #include "Graph/DialogueGraphPanelNodeFactory.h"
 
-#include "Graph/DialogueEdGraphNodes.h"
+#include "Graph/Node/DialogueEdGraphNode.h"
 #include "Graph/Slate/Node/SDialogueEdGraphEndNode.h"
+#include "Graph/Slate/Node/SDialogueEdGraphLineNode.h"
 #include "Graph/Slate/Node/SDialogueEdGraphSceneNode.h"
 #include "Graph/Slate/Node/SDialogueEdGraphSelectNode.h"
 #include "Graph/Slate/Node/SDialogueEdGraphStartNode.h"
@@ -31,6 +32,10 @@ TSharedPtr<SGraphNode> FDialogueGraphPanelNodeFactory::CreateNode(UEdGraphNode* 
     if ( Node->IsA(UDialogueEdGraphEndNode::StaticClass()) )
     {
         return SNew(SDialogueEdGraphEndNode, Node);
+    }
+    if ( Node->IsA(UDialogueEdGraphDialogueLineNode::StaticClass()) )
+    {
+        return SNew(SDialogueEdGraphLineNode, Node);
     }
     if ( Node->IsA(UDialogueEdGraphSceneNode::StaticClass()) )
     {

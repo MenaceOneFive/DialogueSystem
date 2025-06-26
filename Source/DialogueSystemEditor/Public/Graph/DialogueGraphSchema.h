@@ -1,12 +1,12 @@
 ﻿#pragma once
+#include "DialogueGraphPinConnectionPolicies.h"
 #include "DialogueGraphSchema.generated.h"
 
 class UDialogueEdGraphNode;
 
-class FDialogueGraphSchema_SpawnNode : public FEdGraphSchemaAction
+class FDialogueGraphSchema_SpawnNode final : public FEdGraphSchemaAction
 {
 public:
-#pragma region SchemaContextMenuActions
     FDialogueGraphSchema_SpawnNode(const TSubclassOf<UDialogueEdGraphNode>& InSpawnableNodeClass,
                                    const FText& InMenuItemName,
                                    const FText& InMenuDescription,
@@ -26,56 +26,21 @@ public:
                                         const FVector2D Location,
                                         bool bSelectNewNode = true) override;
 
-#pragma endregion
-
 private:
     TSubclassOf<UDialogueEdGraphNode> SpawnableNodeClass = nullptr;
 };
 
-#pragma region PinConnectionPolicies    // 핀간 연결이 적절한지 검사하는 정책들을 정의
-class FPinConnectionPolicy
-{
-public:
-    virtual ~FPinConnectionPolicy() = default;
-    virtual FPinConnectionResponse ValidateConnection(const UEdGraphPin* A,
-                                                      const UEdGraphPin* B);
-};
 
-// 핀의 입력/출력에 상관 없이 양 끝단이 같은 노드, 즉 자기 자신에 대한 연결을 막는 정책
-// 만약 재귀적 연결을 허용하고 싶다면 노드의 bAllowRecursiveConnection를 true로 설정해야 한다.
-class FRecursivePinConnectionPolicy final : public FPinConnectionPolicy
-{
-public:
-    virtual FPinConnectionResponse ValidateConnection(const UEdGraphPin* A,
-                                                      const UEdGraphPin* B) override;
-};
-
-// 두 핀의 방향은 같을 수 없다.
-class FDirectionPinConnectionPolicy final : public FPinConnectionPolicy
-{
-public:
-    virtual FPinConnectionResponse ValidateConnection(const UEdGraphPin* A,
-                                                      const UEdGraphPin* B) override;
-};
-
-// 출력핀은 하나의 커넥션만 가질 수 있다.
-class FOutputPinConnectionPolicy final : public FPinConnectionPolicy
-{
-public:
-    virtual FPinConnectionResponse ValidateConnection(const UEdGraphPin* A,
-                                                      const UEdGraphPin* B) override;
-};
-#pragma endregion
-
-// 대화 그래프 스키마
+/// <summary>
+/// 대화 그래프 스키마
+/// </summary>
 UCLASS()
 class UDialogueGraphSchema : public UEdGraphSchema
 {
     GENERATED_BODY()
 
-#pragma region SchemaContextMenuActions // 마우스 우클릭시 호출되는 ContextAction
+public: // SchemaContextMenuActions 마우스 우클릭시 호출되는 ContextAction
 
-public:
     // UEdGraphSchema 인터페이스
     /// <summary>
     /// 그래프에서 우클릭하면 열리는 컨텍스트 메뉴 
@@ -90,11 +55,17 @@ public:
     /// <param name="Context"></param>
     virtual void GetContextMenuActions(UToolMenu* Menu,
                                        UGraphNodeContextMenuContext* Context) const override;
-#pragma endregion
 
-#pragma region PinConnection // 핀 연결 가능성 확인, 핀 그리기
-
-public:
+    // PinConnection 핀 연결 가능성 확인, 핀 그리기
+    /// <summary>
+    /// 핀연결이 가능한지 검사<br>
+    /// 정책기반으로 연결가능성을 검사합니다.<br>
+    /// FPinConnectionPolicy를 확장한 클래스를 정의하고 그 인스턴스를
+    /// TArray<TSharedPtr<FPinConnectionPolicy>> UDialogueGraphSchema::ConnectionPolicies에 추가하면 됩니다.
+    /// </summary>
+    /// <param name="A">핀1</param>
+    /// <param name="B">핀2</param>
+    /// <returns>핀연결 가능성에 대한 검토 결과</returns>
     virtual const FPinConnectionResponse CanCreateConnection(const UEdGraphPin* A,
                                                              const UEdGraphPin* B) const override;
 
@@ -102,28 +73,24 @@ public:
                                                                     int32 InFrontLayerID,
                                                                     float InZoomFactor,
                                                                     const FSlateRect& InClippingRect,
-                                                                    class FSlateWindowElementList& InDrawElements,
-                                                                    class UEdGraph* InGraphObj) const override;
-#pragma endregion
+                                                                    FSlateWindowElementList& InDrawElements,
+                                                                    UEdGraph* InGraphObj) const override;
 
-#pragma region BreakPin
-
-public:
+public: // BreakPin : 연결 끊기
     virtual void BreakNodeLinks(UEdGraphNode& TargetNode) const override;
 
     virtual void BreakPinLinks(UEdGraphPin& TargetPin,
                                bool bSendsNodeNotification) const override;
-#pragma endregion
 
-    // Getter
-public:
+public: // Getter
     virtual FLinearColor GetPinTypeColor(const FEdGraphPinType& PinType) const override;
 
-    // Properties
-private:
-    TArray<TSharedPtr<FPinConnectionPolicy>> ConnectionPolicies{
+private: // Properties
+    TArray<TSharedPtr<FPinConnectionPolicy>> ConnectionPolicies
+    {
         MakeShared<FRecursivePinConnectionPolicy>(FRecursivePinConnectionPolicy()),
         MakeShared<FDirectionPinConnectionPolicy>(FDirectionPinConnectionPolicy()),
-        MakeShared<FOutputPinConnectionPolicy>(FOutputPinConnectionPolicy())
+        MakeShared<FOutputPinConnectionPolicy>(FOutputPinConnectionPolicy()),
+        MakeShared<FSelectNodeOutputPinDupConnection>()
     };
 };

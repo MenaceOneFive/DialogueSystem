@@ -14,24 +14,34 @@ namespace DialogueAsset
     inline FName CategoryCharacter = "DialogueSystem/Character";
 }
 
+/// <summary>
+/// 캐릭터 설정집 에셋
+/// </summary>
 UCLASS(BlueprintType)
 class DIALOGUESYSTEMEDITOR_API UDialogueCharacterAsset : public UObject
 {
     GENERATED_BODY()
 
 public:
+    // 캐릭터의 프로필 이미지
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue Character")
+    UTexture2D* CharacterProfileImage;
+
     // 캐릭터의 이름
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue Character")
-    FString CharacterName;
+    FString Name;
 
     // 캐릭터에 대한 설명
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue Character")
     FString Description;
 
+public:
     // 기타 캐릭터 관련 속성들 추가 가능
 };
 
-/** Factory for Dialogue Character Asset */
+/// <summary>
+/// 캐릭터 에셋의 팩토리 클래스
+/// </summary>
 UCLASS()
 class DIALOGUESYSTEMEDITOR_API UDialogueCharacterAssetFactory : public UFactory
 {
@@ -50,7 +60,9 @@ public:
     virtual uint32 GetMenuCategories() const override;
 };
 
-/** AssetTypeActions for Dialogue Character Asset */
+/// <summary>
+/// 캐릭터 에셋에 대해 AssetTypeAction를 구현
+/// </summary>
 class FAssetTypeActions_DialogueCharacter final : public FAssetTypeActions_Base
 {
 public:
@@ -60,4 +72,23 @@ public:
     virtual uint32 GetCategories() override;
     virtual void OpenAssetEditor(const TArray<UObject*>& InObjects,
                                  TSharedPtr<IToolkitHost> EditWithinLevelEditor) override;
+};
+
+/// <summary>
+/// 에셋의 썸네일을 캐릭터의 프로필 이미지로 바꾸는 기능을 구현함
+/// </summary>
+UCLASS()
+class DIALOGUESYSTEMEDITOR_API UDialogueCharacterThumbnailRenderer : public UThumbnailRenderer
+{
+    GENERATED_BODY()
+
+public:
+    virtual void Draw(UObject* Object,
+                      int32 X,
+                      int32 Y,
+                      uint32 Width,
+                      uint32 Height,
+                      FRenderTarget* Viewport,
+                      FCanvas* Canvas,
+                      bool bAdditionalViewFamily) override;
 };

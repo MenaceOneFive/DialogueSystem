@@ -5,11 +5,11 @@
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
 
-class DIALOGUESYSTEMEDITOR_API FDialogueGraphEditorCommands : public TCommands<FDialogueGraphEditorCommands>
+class DIALOGUESYSTEMEDITOR_API FDialogueGraphEditorCommands final : public TCommands<FDialogueGraphEditorCommands>
 {
 public:
     FDialogueGraphEditorCommands()
-        : TCommands<FDialogueGraphEditorCommands>
+        : TCommands
         (
          TEXT("FDialogueGraphEditor"),                                                         // Context name for fast lookup
          NSLOCTEXT("Contexts", "FDialogueGraphEditor", "DialogueGraph Editor's command list"), // Localized context name for displaying
@@ -20,6 +20,8 @@ public:
     }
 
     TSharedPtr<FUICommandInfo> Command1;
+    TSharedPtr<FUICommandInfo> DeleteSelectedNode;
+    TSharedPtr<FUICommandInfo> DeleteAllNodeConnection;
 
     virtual void RegisterCommands() override;
 };

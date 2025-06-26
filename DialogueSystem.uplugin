@@ -18,12 +18,12 @@
     {
       "Name": "DialogueSystemEditor",
       "Type": "Editor",
-      "LoadingPhase": "Default"
+      "LoadingPhase": "PreDefault"
     },
     {
       "Name": "DialogueSystemRuntime",
       "Type": "Runtime",
-      "LoadingPhase": "Default"
+      "LoadingPhase": "PreDefault"
     }
   ],
   "Plugins": [

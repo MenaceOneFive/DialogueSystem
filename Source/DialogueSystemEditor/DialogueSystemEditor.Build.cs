@@ -43,7 +43,13 @@ public class DialogueSystemEditor : ModuleRules
                 "Json",
                 "JsonUtilities",
                 "Projects",
-                "EditorStyle"
+                "EditorStyle",
+                "EditorWidgets",
+                "PropertyEditor",
+                "LevelSequence",
+                "UMG",
+                "BlueprintGraph",
+                "ApplicationCore"
             ]
         );
 

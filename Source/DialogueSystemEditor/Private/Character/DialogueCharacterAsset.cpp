@@ -2,9 +2,10 @@
 
 #include "Character/DialogueCharacterAsset.h"
 #include "AssetToolsModule.h"
+#include "CanvasTypes.h"
 #include "IAssetTools.h"
 #include "Character/DialogueCharacterEditor.h"
-#include "Graph/DialogueGraphAsset.h"
+#include "Graph/DialogueGraphAssetFactory.h"
 #include "Misc/Paths.h"
 #include "UObject/ObjectMacros.h"
 
@@ -25,8 +26,8 @@ FText UDialogueCharacterAssetFactory::GetDisplayName() const
 
 UObject* UDialogueCharacterAssetFactory::FactoryCreateNew(UClass* InClass,
                                                           UObject* InParent,
-                                                          FName InName,
-                                                          EObjectFlags Flags,
+                                                          const FName InName,
+                                                          const EObjectFlags Flags,
                                                           UObject* InContext,
                                                           FFeedbackContext* InWarn)
 {
@@ -54,7 +55,7 @@ uint32 FAssetTypeActions_DialogueCharacter::GetCategories()
 }
 
 void FAssetTypeActions_DialogueCharacter::OpenAssetEditor(const TArray<UObject*>& InObjects,
-                                                          TSharedPtr<IToolkitHost> EditWithinLevelEditor)
+                                                          const TSharedPtr<IToolkitHost> EditWithinLevelEditor)
 {
     // 편집기에서 열 대화 캐릭터 에셋 선택
     const EToolkitMode::Type Mode = EditWithinLevelEditor.IsValid() ?
@@ -71,6 +72,44 @@ void FAssetTypeActions_DialogueCharacter::OpenAssetEditor(const TArray<UObject*>
             // 에디터 초기화
             NewDialogueGraphEditor->InitDialogueCharacterEditor(Mode, EditWithinLevelEditor, DialogueCharacterAsset);
         }
+    }
+}
+
+void UDialogueCharacterThumbnailRenderer::Draw(UObject* Object,
+                                               const int32 X,
+                                               const int32 Y,
+                                               const uint32 Width,
+                                               const uint32 Height,
+                                               FRenderTarget* Viewport,
+                                               FCanvas* Canvas,
+                                               const bool bAdditionalViewFamily)
+{
+    const UDialogueCharacterAsset* Asset = Cast<UDialogueCharacterAsset>(Object);
+
+    if ( Asset == nullptr || Asset->CharacterProfileImage == nullptr )
+    {
+        // TODO: 기본 이미지 사용할 것
+        Super::Draw(Object, X, Y, Width, Height, Viewport, Canvas, bAdditionalViewFamily);
+        return;
+    }
+
+    if ( const auto Resource = Asset->CharacterProfileImage->GetResource() )
+    {
+        Canvas->DrawTile(static_cast<float>(X),
+                         static_cast<float>(Y),
+                         static_cast<float>(Width),
+                         static_cast<float>(Height),
+                         0.0f,
+                         0.0f,
+                         1.0f,
+                         1.0f,
+                         FLinearColor::White,
+                         Resource,
+                         true);
+    }
+    else
+    {
+        Super::Draw(Object, X, Y, Width, Height, Viewport, Canvas, bAdditionalViewFamily);
     }
 }
 

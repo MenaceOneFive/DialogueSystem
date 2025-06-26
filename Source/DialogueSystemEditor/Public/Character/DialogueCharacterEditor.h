@@ -27,7 +27,7 @@ public:
     virtual void UnregisterTabSpawners(const TSharedRef<FTabManager>& InTabManager) override;
 
     // 탭 스포너 (PropertyTab)
-    TSharedRef<class SDockTab> PropertyTabSpawner(const class FSpawnTabArgs& Args);
+    TSharedRef<SDockTab> PropertyTabSpawner(const class FSpawnTabArgs& Args);
 
     // 기본 정보 반환
     virtual FName GetToolkitFName() const override;
@@ -41,7 +41,7 @@ protected:
     UDialogueCharacterAsset* DialogueCharacterAsset;
 
 private:
-    TSharedPtr<class IDetailsView> PropertyEditor;
+    TSharedPtr<IDetailsView> PropertyEditor;
 };
 
 #undef LOCTEXT_NAMESPACE

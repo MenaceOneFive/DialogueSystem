@@ -36,6 +36,6 @@ private:
     TSharedPtr<SScrollBar> ScrollBar;
 
     TArray<TTuple<FText, FText>> ChatHistory;
-    FReply MoveToPrevAttempt();
-    FReply MoveToNextAttempt();
+    FReply MoveToPrevAttempt() const;
+    FReply MoveToNextAttempt() const;
 };

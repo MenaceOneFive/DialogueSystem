@@ -31,7 +31,7 @@ void SGenAIPromptWidget::Construct(const FArguments& InArgs)
 
 FReply SGenAIPromptWidget::OnGenerateButtonClicked() const
 {
-    if (OnGenerateButtonClickedDelegate.IsBound())
+    if ( OnGenerateButtonClickedDelegate.IsBound() )
     {
         // 사용자가 텍스트 박스에 입력한 텍스트를 프롬프트로 출력
         const FText UserPrompt = UserPromptTextBox->GetText();

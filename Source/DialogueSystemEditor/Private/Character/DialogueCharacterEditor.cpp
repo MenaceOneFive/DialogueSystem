@@ -6,6 +6,12 @@
 
 #define LOCTEXT_NAMESPACE "DialogueCharacterEditor"
 
+// 탭 ID 정의
+namespace DialogueCharacterEditorTabs
+{
+    static const FName DetailsID = TEXT("DialogueCharacterEditor_Details");
+}
+
 FDialogueCharacterEditor::FDialogueCharacterEditor()
     : DialogueCharacterAsset(nullptr)
 {
@@ -34,24 +40,22 @@ void FDialogueCharacterEditor::InitDialogueCharacterEditor(const EToolkitMode::T
 
     // 레이아웃 정의 (그래프 에디터와 유사한 구조, 추후 확장 가능)
     const TSharedRef<FTabManager::FLayout> DefaultLayout = FTabManager::NewLayout("DefaultDialogueCharacterEditorLayout")
-        ->AddArea(
-            FTabManager::NewPrimaryArea()
-            ->SetOrientation(Orient_Vertical)
-            ->Split(
-                FTabManager::NewSplitter()
-                ->SetOrientation(Orient_Horizontal)
-                ->SetSizeCoefficient(0.9f)
-                ->Split(
-                    FTabManager::NewStack()
-                    ->SetSizeCoefficient(1.0f)
-                    ->AddTab(FName("DetailsTab"), ETabState::OpenedTab)
-                )
-            )
-        );
+            ->AddArea(FTabManager::NewPrimaryArea()
+                      ->SetOrientation(Orient_Vertical)
+                      ->Split(FTabManager::NewSplitter()
+                              ->SetOrientation(Orient_Horizontal)
+                              ->SetSizeCoefficient(0.9f)
+                              ->Split(FTabManager::NewStack()
+                                      ->SetSizeCoefficient(1.0f)
+                                      ->AddTab(DialogueCharacterEditorTabs::DetailsID, ETabState::OpenedTab)
+                                     )
+                             )
+                     );
 
     // 에셋 에디터 초기화
     constexpr bool bCreateDefaultStandaloneMenu = true;
     constexpr bool bCreateDefaultToolbar        = true;
+
     InitAssetEditor(Mode,
                     InitToolkitHost,
                     FName("DialogueCharacterEditorApp"),
@@ -61,20 +65,16 @@ void FDialogueCharacterEditor::InitDialogueCharacterEditor(const EToolkitMode::T
                     InDialogueCharacterAsset);
 }
 
-// 탭 ID 정의
-namespace DialogueCharacterEditorTabs
-{
-    static const FName DetailsID = TEXT("DialogueCharacterEditor_Details");
-}
 
 void FDialogueCharacterEditor::RegisterTabSpawners(const TSharedRef<FTabManager>& InTabManager)
 {
     FWorkflowCentricApplication::RegisterTabSpawners(InTabManager);
-    // 속성 편집기 탭 등록
+
+    // 속성 편집기
     InTabManager->RegisterTabSpawner(DialogueCharacterEditorTabs::DetailsID,
-        FOnSpawnTab::CreateSP(this, &FDialogueCharacterEditor::PropertyTabSpawner))
-        .SetDisplayName(LOCTEXT("Details", "Detail"))
-        .SetGroup(GetWorkspaceMenuCategory());
+                                     FOnSpawnTab::CreateSP(this, &FDialogueCharacterEditor::PropertyTabSpawner))
+                .SetDisplayName(LOCTEXT("Details", "Detail"))
+                .SetGroup(GetWorkspaceMenuCategory());
 }
 
 void FDialogueCharacterEditor::UnregisterTabSpawners(const TSharedRef<FTabManager>& InTabManager)
@@ -92,12 +92,13 @@ TSharedRef<SDockTab> FDialogueCharacterEditor::PropertyTabSpawner(const FSpawnTa
     DetailsViewArgs.bAllowSearch          = true;
     DetailsViewArgs.NameAreaSettings      = FDetailsViewArgs::ObjectsUseNameArea;
     DetailsViewArgs.bHideSelectionTip     = false;
-    PropertyEditor = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
+    PropertyEditor                        = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
 
     // 처음 편집할 데이터
     PropertyEditor->SetObject(DialogueCharacterAsset);
 
     TSharedRef<SDockTab> SpawnedTab = SNew(SDockTab)
+        .OnCanCloseTab(SDockTab::FCanCloseTab::CreateLambda([] { return false; }))
         .Label(LOCTEXT("DetailsPanel", "Details"))
         [
             PropertyEditor.ToSharedRef()

@@ -5,13 +5,10 @@
 #include "CoreMinimal.h"
 #include "EdGraphUtilities.h"
 
-/**
- * 
- */
-class DIALOGUESYSTEMEDITOR_API FDialogueGraphPanelNodeFactory : public FGraphPanelNodeFactory
+class DIALOGUESYSTEMEDITOR_API FDialogueGraphPanelNodeFactory final : public FGraphPanelNodeFactory
 {
 public:
     FDialogueGraphPanelNodeFactory();
     virtual ~FDialogueGraphPanelNodeFactory() override;
-    virtual TSharedPtr<class SGraphNode> CreateNode(UEdGraphNode* Node) const override;
+    virtual TSharedPtr<SGraphNode> CreateNode(UEdGraphNode* Node) const override;
 };

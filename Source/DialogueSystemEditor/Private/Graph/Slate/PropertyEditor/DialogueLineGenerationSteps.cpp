@@ -102,7 +102,7 @@ void SChatBox::Construct(const FArguments& Args)
                 .OnClicked_Lambda([this]
                 {
                     ensure(OnRequestSubmitted.IsBound());
-                    if (OnRequestSubmitted.IsBound())
+                    if ( OnRequestSubmitted.IsBound() )
                     {
                         OnRequestSubmitted.Execute(ChatBoxInput->GetText());
                         ChatBoxInput->SetText(FText::FromString(""));
@@ -122,12 +122,12 @@ void SChatBox::Construct(const FArguments& Args)
     // ChatResponse->SetText(FText::FromString(Msg));
 }
 
-FReply SChatBox::MoveToPrevAttempt()
+FReply SChatBox::MoveToPrevAttempt() const
 {
     return FReply::Handled();
 }
 
-FReply SChatBox::MoveToNextAttempt()
+FReply SChatBox::MoveToNextAttempt() const
 {
     return FReply::Handled();
 }
