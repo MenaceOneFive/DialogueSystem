@@ -17,6 +17,11 @@ void UDialogueSceneNode::SetLevelSequenceToPlay(ULevelSequence* const InLevelSeq
     this->LevelSequenceToPlay = InLevelSequenceToPlay;
 }
 
+bool UDialogueSceneNode::CanSkipThisNode() const
+{
+    return true;
+}
+
 TArray<FGuid> UDialogueSceneNode::GetPrevNodeIDs() const
 {
     return PrevNodeIDs;

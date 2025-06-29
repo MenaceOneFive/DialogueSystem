@@ -5,6 +5,7 @@
 
 #include "Blueprint/UserWidget.h"
 #include "Graph/Node/DialogueGraphNode.h"
+#include "Player/DialoguePlayerInstance.h"
 #include "Widget/DialoguePlayerUIRoot.h"
 #include "Widget/DialogueSelectionContainerWidget.h"
 #include "Widget/DialogueSubtitleWidget.h"
@@ -98,6 +99,8 @@ void UDialogueUIComponent::BeginPlay()
     }
 
     HideSubtitle();
+
+    Cursor = RootWidget->GetCursor();
 }
 
 void UDialogueUIComponent::InvalidateSelectionItems() const
@@ -207,6 +210,34 @@ void UDialogueUIComponent::HideSelectionUI() const
     {
         IDialogueSelectionContainerWidget::Execute_HideSelectionWidget(SelectionWidget.GetObject());
     }
+}
+
+void UDialogueUIComponent::ExecuteSkip() const
+{
+    if ( IsValid(CurrentPlayer) )
+    {
+        CurrentPlayer->SkipCurrentNode();
+    }
+}
+
+UDialogueRuntimePlayer* UDialogueUIComponent::GetCurrentPlayer() const
+{
+    return CurrentPlayer;
+}
+
+void UDialogueUIComponent::SetCurrentPlayer(UDialogueRuntimePlayer* InCurrentPlayer)
+{
+    this->CurrentPlayer = InCurrentPlayer;
+}
+
+void UDialogueUIComponent::ShowCursor()
+{
+    RootWidget->GetRootWidget()->SetCursor(Cursor);
+}
+
+void UDialogueUIComponent::HideCursor()
+{
+    RootWidget->GetRootWidget()->SetCursor(EMouseCursor::Type::None);
 }
 
 FString UDialogueUIComponent::GetSubtitleText() const

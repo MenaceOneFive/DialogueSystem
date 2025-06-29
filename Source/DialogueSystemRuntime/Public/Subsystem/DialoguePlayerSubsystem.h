@@ -7,6 +7,7 @@
 #include "DialoguePlayerSubsystem.generated.h"
 
 
+class UDialogueGraph;
 class UListView;
 class UDialoguePlayerInstancePool;
 class ULevelSequencePlayerHolder;

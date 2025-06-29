@@ -237,7 +237,6 @@ void UDialogueRuntimePlayer::FocusOnRootWidget() const
     check(UIComponent)
 
     const auto RootWidget = UIComponent->GetRootWidget()->GetRootWidget();
-    FInputModeUIOnly InputModeUIOnly;
     UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(PlayerController, RootWidget, EMouseLockMode::LockAlways);
 }
 
@@ -259,6 +258,11 @@ void UDialogueRuntimePlayer::ShowCursor() const
         if ( const auto PlayerController = UGameplayStatics::GetPlayerController(World, 0) )
         {
             PlayerController->SetShowMouseCursor(true);
+            const auto ControlledPawn = PlayerController->GetPawn();
+            if ( const auto Component = ControlledPawn->GetComponentByClass<UDialogueUIComponent>() )
+            {
+                Component->ShowCursor();
+            }
         }
     }
 }
@@ -270,6 +274,11 @@ void UDialogueRuntimePlayer::HideCursor() const
         if ( const auto PlayerController = UGameplayStatics::GetPlayerController(World, 0) )
         {
             PlayerController->SetShowMouseCursor(false);
+            const auto ControlledPawn = PlayerController->GetPawn();
+            if ( auto Component = ControlledPawn->GetComponentByClass<UDialogueUIComponent>() )
+            {
+                Component->HideCursor();
+            }
         }
     }
 }
@@ -285,76 +294,6 @@ void UDialogueRuntimePlayer::VisitStartNode(const TObjectPtr<const UDialogueStar
     FocusOnRootWidget();
     HideCursor();
 
-    // // 예시1 : 메서드를 호출 (성공, 파라메터와 반환값 둘 다 없는 경우)
-    // if ( const auto NewFunction = DirectorClass->FindFunctionByName(FName("NewFunction")) )
-    // {
-    //     DialogueGraphDirector->ProcessEvent(NewFunction, nullptr);
-    // }
-    //
-    // // 예시2 : 이벤트를 호출 (성공, 파라메터와 반환값 둘 다 없는 경우)
-    // if ( const auto CustomEvent = DirectorClass->FindFunctionByName(FName("CustomEvent")) )
-    // {
-    //     DialogueGraphDirector->ProcessEvent(CustomEvent, nullptr);
-    // }
-    //
-    // // 예시3 : 메서드를 호출 (성공, 파라메터와 반환값이 있는 경우)
-    // const auto Function = DirectorClass->FindFunctionByName(FName("NewFunction2"));
-    // if ( Function && Function->NumParms > 0 )
-    // {
-    //     const TSharedRef<FStructOnScope> FuncParams = MakeShared<FStructOnScope>(Function);
-    //
-    //     // 사용되는 프로퍼티를 정의
-    //     const FBoolProperty* Return_BoolValueProperty  = nullptr;
-    //     const FStrProperty* Return_StringValueProperty = nullptr;
-    //
-    //     // 프로퍼티를 유형별로 처리
-    //     for ( TFieldIterator<FProperty> It(Function); It; ++It )
-    //     {
-    //         if ( It->HasAnyPropertyFlags(CPF_Parm) && !It->HasAnyPropertyFlags(CPF_ReturnParm | CPF_OutParm) )
-    //         {
-    //             if ( const auto ObjectProperty = CastField<FObjectProperty>(*It);
-    //                 ObjectProperty
-    //                 && ObjectProperty->PropertyClass->IsChildOf<UDialogueGraph>() )
-    //             {
-    //                 UE_LOG(LogTemp, Log, TEXT(""));
-    //             }
-    //         }
-    //         // 반환 유형인 프로퍼티 ( CPF_OutParam(보통 이쪽임), CPF_ReturnParam )
-    //         if ( It->HasAnyPropertyFlags(CPF_ReturnParm | CPF_OutParm) )
-    //         {
-    //             if ( const auto BoolProperty = CastField<FBoolProperty>(*It)
-    //                 ; It->NamePrivate == FName("Result") )
-    //             {
-    //                 Return_BoolValueProperty = BoolProperty;
-    //             }
-    //             if ( const auto StringProperty = CastField<FStrProperty>(*It)
-    //                 ; It->NamePrivate == FName("StrStr") )
-    //             {
-    //                 Return_StringValueProperty = StringProperty;
-    //             }
-    //             continue;
-    //         }
-    //         if ( It->HasAnyPropertyFlags(CPF_Parm) )
-    //         {
-    //             continue;
-    //         }
-    //         if ( It->HasAnyPropertyFlags(CPF_ReferenceParm) )
-    //         {
-    //             continue;
-    //         }
-    //     }
-    //
-    //     // 프로퍼티를 이용해서 파라메터를 초기화
-    //
-    //     // 블루프린트 메서드를 호출
-    //     DialogueGraphDirector->ProcessEvent(Function, FuncParams->GetStructMemory());
-    //
-    //     // 프로퍼티를 이용해서 결과를 추출
-    //     auto BoolReturnValue   = Return_BoolValueProperty ? Return_BoolValueProperty->GetPropertyValue_InContainer(FuncParams->GetStructMemory()) : false;
-    //     auto StringReturnValue = Return_StringValueProperty ? Return_StringValueProperty->GetPropertyValue_InContainer(FuncParams->GetStructMemory()) : "";
-    //     UE_LOG(LogTemp, Log, TEXT(""));
-    // }
-
     // 방문을 통해 발생하는 효과 처리
     WhenVisitThisNode(PrevNode, StartNode);
 
@@ -365,27 +304,6 @@ void UDialogueRuntimePlayer::VisitStartNode(const TObjectPtr<const UDialogueStar
     PrevNode = StartNode;
 
     NextNode->Accept(this);
-
-    // if ( const auto ConditionalNode = Cast<UDialogueConditionalNode>(NextNode) )
-    // {
-    //     if ( const auto FunctionName = ConditionalNode->GetCanSelectThisNodeFunctionName(); !FunctionName.IsEqual(NAME_None) )
-    //     {
-    //         const auto Function = DirectorClass->FindFunctionByName(FunctionName);
-    //         check(Function)
-    //         if ( DialogueGraphDirector->CanVisitNode(Function, NextNode) )
-    //         {
-    //             NextNode->Accept(this);
-    //         }
-    //     }
-    //     else
-    //     {
-    //         NextNode->Accept(this);
-    //     }
-    // }
-    // else
-    // {
-    //     NextNode->Accept(this);
-    // }
 }
 
 void UDialogueRuntimePlayer::VisitSelectionNode(const TObjectPtr<const UDialogueSelectionNode>& SelectionNode)
@@ -447,6 +365,7 @@ void UDialogueRuntimePlayer::VisitSceneNode(const TObjectPtr<const UDialogueScen
     // 다시 재생할 수 있으니 재생위치 초기화
     Player->SetPlaybackPosition({0, EUpdatePositionMethod::Jump/** 재생모드가 확실하지 않아서 실험 필요 */});
     Player->Play();
+    HideCursor();
 }
 
 void UDialogueRuntimePlayer::VisitEndNode(const TObjectPtr<const UDialogueEndNode>& EndNode)
@@ -506,6 +425,27 @@ void UDialogueRuntimePlayer::WhenVisitThisNode(const TObjectPtr<const UDialogueG
     {
         const auto Function = DirectorClass->FindFunctionByName(WhenVisitThisNodeName);
         DialogueGraphDirector->WhenVisitThisNode(Function, InPrevNode, InCurrentNode);
+    }
+}
+
+void UDialogueRuntimePlayer::SkipCurrentNode() const
+{
+    // Plugins\DialogueSystem\DialogueSystem\Source\DialogueSystemRuntime\Private\Player\DialoguePlayerInstance.cpp:445 에 따르면
+    // 현재 재생중인 노드는 PrevNode이다.
+    if ( PrevNode && PrevNode->Implements<USkippableNode>() )
+    {
+        if ( const auto SceneNode = Cast<UDialogueSceneNode>(PrevNode); SceneNode && SceneNode->CanSkipThisNode() )
+        {
+            check(IsValid(CurrentHolder))
+            const auto CurrentPlayer = CurrentHolder->GetLevelSequencePlayer();
+            check(CurrentPlayer)
+            const FQualifiedFrameTime EndTime = CurrentPlayer->GetEndTime();
+            FMovieSceneSequencePlaybackParams PlaybackParams;
+            PlaybackParams.bHasJumped   = true;
+            PlaybackParams.Timecode     = EndTime.ToTimecode();
+            PlaybackParams.PositionType = EMovieScenePositionType::Timecode;
+            CurrentPlayer->SetPlaybackPosition(PlaybackParams);
+        }
     }
 }
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "SkippableNode.h"
 #include "Graph/Node/DialogueConditionalNode.h"
 #include "DialogueSceneNode.generated.h"
 
@@ -6,7 +7,8 @@ class ULevelSequence;
 
 // LevelSequence를 재생하는 노드
 UCLASS(BlueprintType)
-class DIALOGUESYSTEMRUNTIME_API UDialogueSceneNode : public UDialogueConditionalNode
+class DIALOGUESYSTEMRUNTIME_API UDialogueSceneNode : public UDialogueConditionalNode,
+                                                     public ISkippableNode
 {
     GENERATED_BODY()
 
@@ -48,6 +50,9 @@ public:
     /// </summary>
     /// <param name="InLevelSequenceToPlay">설정할 레벨 시퀀스 객체</param>
     void SetLevelSequenceToPlay(ULevelSequence* const InLevelSequenceToPlay);
+
+public: // ISkippableNode
+    virtual bool CanSkipThisNode() const override;
 
 protected:
     UPROPERTY(VisibleAnywhere)

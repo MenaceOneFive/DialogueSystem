@@ -6,6 +6,7 @@
 #include "CoreMinimal.h"
 #include "DialogueUIComponent.generated.h"
 
+class UDialogueRuntimePlayer;
 class UDialogueSelectionItem;
 class IDialogueSelectionContainerWidget;
 class UDialogueGraphNode;
@@ -75,7 +76,6 @@ public:
     UDialogueUIComponent();
 
 public: // 자막 UI
-
     /// <summary>
     /// 표시할 자막을 설정합니다.
     /// </summary>
@@ -127,6 +127,22 @@ public: // 선택지 UI
     UFUNCTION(BlueprintCallable)
     void HideSelectionUI() const;
 
+public: // 영상 제어
+    UFUNCTION(BlueprintCallable)
+    void ExecuteSkip() const;
+
+    UDialogueRuntimePlayer* GetCurrentPlayer() const;
+
+    UFUNCTION(BlueprintCallable)
+    void SetCurrentPlayer(UDialogueRuntimePlayer* InCurrentPlayer);
+
+public:
+    UFUNCTION(BlueprintCallable)
+    void ShowCursor();
+
+    UFUNCTION(BlueprintCallable)
+    void HideCursor();
+
 protected:
     // Called when the game starts
     virtual void BeginPlay() override;
@@ -167,4 +183,9 @@ private:
     TSubclassOf<UUserWidget> RootWidgetClass;
 
     TSharedPtr<FSubtitleParam> CurrentSubtitle;
+
+    UPROPERTY()
+    UDialogueRuntimePlayer* CurrentPlayer;
+
+    EMouseCursor::Type Cursor;
 };
