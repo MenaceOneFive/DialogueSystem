@@ -25,7 +25,7 @@ class DIALOGUESYSTEMEDITOR_API UDialogueCharacterAsset : public UObject
 public:
     // 캐릭터의 프로필 이미지
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue Character")
-    UTexture2D* CharacterProfileImage;
+    TObjectPtr<UTexture2D> CharacterProfileImage;
 
     // 캐릭터의 이름
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue Character")

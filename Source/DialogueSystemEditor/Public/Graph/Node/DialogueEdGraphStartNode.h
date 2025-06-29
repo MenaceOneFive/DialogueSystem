@@ -22,5 +22,5 @@ public: // Visitor 패턴
 	/// 다음 노드를 반환 
 	/// </summary>
 	/// <returns>다음 노드</returns>
-	const UDialogueEdGraphNode* GetNextNode() const;
+	TObjectPtr<const UDialogueEdGraphNode> GetNextNode() const;
 };

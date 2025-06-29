@@ -15,10 +15,10 @@ class DIALOGUESYSTEMRUNTIME_API UDialogueGraph : public UObject
     GENERATED_BODY()
 
 public:
-    virtual void BeginDestroy() override;;
+    virtual void BeginDestroy() override;
 
 public: // Getter
-    UBlueprint* GetBlueprintInstance() const;
+    TObjectPtr<UBlueprint> GetBlueprintInstance() const;
     TObjectPtr<UClass> GetBlueprintClass() const;
     FString GetDirectorBlueprintName() const;
     void SetBlueprintInstance(UBlueprint* InBlueprintInstance);
@@ -34,7 +34,7 @@ public:
     UFUNCTION(BlueprintCallable)
     bool AddNode(UDialogueGraphNode* GraphNode);
 
-    void SetStartNode(UDialogueStartNode* InStartNode);
+    void SetStartNode(TObjectPtr<UDialogueStartNode> InStartNode);
 
     void Clear();
 
@@ -74,7 +74,7 @@ public: // 런타임 그래프 사용
     /// </summary>
     /// <param name="NodeID">노드의 ID</param>
     /// <returns>포함 여부</returns>
-    const UDialogueGraphNode* GetNode(const FGuid NodeID) const;
+    TObjectPtr<const UDialogueGraphNode> GetNode(const FGuid NodeID) const;
 
     /// <summary>
     /// 현재 그래프의 시작노드를 반환합니다.
@@ -83,17 +83,17 @@ public: // 런타임 그래프 사용
     UFUNCTION(BlueprintCallable)
     UDialogueStartNode* GetStartNode() const;
 
-    TArray<const UDialogueGraphNode*> GetNodes() const;
+    TArray<TObjectPtr<const UDialogueGraphNode>> GetNodes() const;
 
 private:
-    void OnDirectorRecompiled(UBlueprint* InBlueprint);
+    void OnDirectorRecompiled(TObjectPtr<UBlueprint> InBlueprint);
 
 
 #if WITH_EDITORONLY_DATA
 
 public: /// 에디터타임 그래프
     UPROPERTY(VisibleAnywhere)
-    UAssetUserData* AssetUserData; //DialogueEdGraph;
+    TObjectPtr<UAssetUserData> AssetUserData; //DialogueEdGraph;
 
 protected:
     // 이 대화의 상황 ( AI가 참고함 )
@@ -114,7 +114,7 @@ private:
     TObjectPtr<UClass> BlueprintClass;
 
     UPROPERTY(VisibleAnywhere)
-    UDialogueStartNode* StartNode;
+    TObjectPtr<UDialogueStartNode> StartNode;
 
     UPROPERTY(VisibleAnywhere)
     TMap<FGuid, UDialogueGraphNode*> Nodes;

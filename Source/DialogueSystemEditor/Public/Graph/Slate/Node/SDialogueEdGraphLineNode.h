@@ -6,6 +6,7 @@
 #include "SGraphNode.h"
 #include "Graph/Node/DialogueEdGraphNode.h"
 
+class UDialogueEdGraphDialogueLineNode;
 class SCanvas;
 class SMultiLineEditableText;
 /**

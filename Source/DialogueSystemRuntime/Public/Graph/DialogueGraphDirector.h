@@ -15,11 +15,11 @@ class DIALOGUESYSTEMRUNTIME_API UDialogueGraphDirector : public UObject
 
 public:
     virtual bool CanVisitNode(const TObjectPtr<UFunction>& Function,
-                              const UDialogueGraphNode* NextNodeToVisit);
+                              const TObjectPtr<const UDialogueGraphNode>& NextNodeToVisit);
 
     virtual void WhenVisitThisNode(const TObjectPtr<UFunction>& Function,
-                                   const UDialogueGraphNode* PrevNode,
-                                   const UDialogueGraphNode* CurrentNode);
+                                   const TObjectPtr<const UDialogueGraphNode>& PrevNode,
+                                   const TObjectPtr<const UDialogueGraphNode>& CurrentNode);
 
 #if WITH_EDITOR
 

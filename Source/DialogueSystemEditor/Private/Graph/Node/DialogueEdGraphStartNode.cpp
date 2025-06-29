@@ -19,7 +19,7 @@ void UDialogueEdGraphStartNode::Accept(FAbstractDialogueEdGraphVisitor* Visitor)
     Visitor->VisitStartNode(this);
 }
 
-const UDialogueEdGraphNode* UDialogueEdGraphStartNode::GetNextNode() const
+TObjectPtr<const UDialogueEdGraphNode> UDialogueEdGraphStartNode::GetNextNode() const
 {
     // StartNode는 출력 1개만 갖고 있다고 가정한다.
     UEdGraphPin* PinToNext = (*Pins.begin());

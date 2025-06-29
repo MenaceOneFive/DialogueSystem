@@ -62,7 +62,7 @@ public:
     /// 대화의 시작점을 처리하며, 일반적으로 다음 노드로 이동하는 로직을 수행합니다.
     /// </summary>
     /// <param name="StartNode">처리할 시작 노드 인스턴스</param>
-    virtual void VisitStartNode(const UDialogueStartNode* StartNode) = 0;
+    virtual void VisitStartNode(const TObjectPtr<const UDialogueStartNode>& StartNode) = 0;
 
     /// <summary>
     /// 선택 노드를 방문하고 처리하는 메서드
@@ -71,7 +71,7 @@ public:
     /// 각 선택지에 대한 콜백을 설정하여 사용자 입력에 따라 다음 노드를 결정합니다.
     /// </summary>
     /// <param name="SelectionNode">처리할 선택 노드 인스턴스</param>
-    virtual void VisitSelectionNode(const UDialogueSelectionNode* SelectionNode) = 0;
+    virtual void VisitSelectionNode(const TObjectPtr<const UDialogueSelectionNode>& SelectionNode) = 0;
 
     /// <summary>
     /// 씬 노드를 방문하고 처리하는 메서드
@@ -80,7 +80,7 @@ public:
     /// 노드에 연결된 LevelSequence를 가져와 SectionStack에 추가하고 재생합니다.
     /// </summary>
     /// <param name="SceneNode">처리할 씬 노드 인스턴스</param>
-    virtual void VisitSceneNode(const UDialogueSceneNode* SceneNode) = 0;
+    virtual void VisitSceneNode(const TObjectPtr<const UDialogueSceneNode>& SceneNode) = 0;
 
     /// <summary>
     /// 종료 노드를 방문하고 처리하는 메서드
@@ -89,7 +89,7 @@ public:
     /// 일반적으로 DialoguePlayer의 Stop 메서드를 호출하여 시퀀스 재생을 중지합니다.
     /// </summary>
     /// <param name="EndNode">처리할 종료 노드 인스턴스</param>
-    virtual void VisitEndNode(const UDialogueEndNode* EndNode) = 0;
+    virtual void VisitEndNode(const TObjectPtr<const UDialogueEndNode>& EndNode) = 0;
 
     /// <summary>
     /// 이벤트 노드를 방문하고 처리하는 메서드
@@ -98,53 +98,5 @@ public:
     /// 이벤트 실행 후 일반적으로 다음 노드로 이동합니다.
     /// </summary>
     /// <param name="ScriptNode">처리할 이벤트 노드 인스턴스</param>
-    virtual void VisitEventNode(const UDialogueEventNode* ScriptNode) = 0;
+    virtual void VisitEventNode(const TObjectPtr<const UDialogueEventNode>& ScriptNode) = 0;
 };
-
-//
-// UCLASS()
-// class UDialogueGraphVisitorInstance : public UObject,
-//                                       public IRuntimeDialogueGraphVisitor
-// {
-//     GENERATED_BODY()
-//
-// #pragma region IDialogueGraphNode_Implementation_Public
-//
-// public:
-//     virtual void InitializeVisitor() override;
-//     virtual void VisitStartNode(const UDialogueStartNode* StartNode) override;
-//     virtual void VisitSelectionNode(const UDialogueSelectionNode* SelectionNode) override;
-//     virtual void VisitSceneNode(const UDialogueSceneNode* SceneNode) override;
-//     virtual void VisitEndNode(const UDialogueEndNode* EndNode) override;
-//     virtual void VisitEventNode(const UDialogueEventNode* ScriptNode) override;
-// #pragma endregion
-//
-// public:
-//     virtual void BeginDestroy() override
-//     {
-//         SectionStack               = nullptr;
-//         DialoguePlayer             = nullptr;
-//         DialoguePositionController = nullptr;
-//         UE_LOG(LogMemory, Display, TEXT("UDialogueGraphVisitor"))
-//         Super::BeginDestroy();
-//     };
-//
-// private:
-//
-// private:
-//     /// <summary>Visitor가 초기화되었는지 여부를 나타내는 플래그</summary>
-//     bool bIsInitialized = false;
-//
-//     /// <summary>섹션 스택 인터페이스에 대한 참조</summary>
-//     UPROPERTY()
-//     TScriptInterface<ISectionStack> SectionStack;
-//
-//     /// <summary>대화 플레이어 인터페이스에 대한 참조</summary>
-//     UPROPERTY()
-//     TScriptInterface<IDialoguePlayer> DialoguePlayer;
-//
-//     /// <summary>대화 위치 컨트롤러 인터페이스에 대한 참조</summary>
-//     UPROPERTY()
-//     TScriptInterface<IDialoguePositionController> DialoguePositionController;
-// };
-//

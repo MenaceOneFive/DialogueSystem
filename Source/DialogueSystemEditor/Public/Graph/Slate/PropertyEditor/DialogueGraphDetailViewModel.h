@@ -9,9 +9,9 @@
 class FDialogueGraphDetailViewModel
 {
 public:
-    explicit FDialogueGraphDetailViewModel(const TSharedPtr<IPropertyHandle>& PropertyHandle);;
+    explicit FDialogueGraphDetailViewModel(const TSharedPtr<IPropertyHandle>& PropertyHandle);
 
-    void HideProperties(IDetailLayoutBuilder& Builder) const;;
+    void HideProperties(IDetailLayoutBuilder& Builder) const;
 
     FString GetDescription() const;
     FString GetMemo() const;

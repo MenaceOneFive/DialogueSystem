@@ -44,8 +44,8 @@ public: // Visitor패턴
     virtual void Accept(FAbstractDialogueEdGraphVisitor* Visitor) PURE_VIRTUAL(UDialogueEdGraphNode::Accept,);
 
 public: // IWhenSelectThisNode
-    virtual FName GetWhenSelectThisNodeFunctionName() const override;;
-    virtual void SetWhenSelectThisNodeFunctionName(FName InWhenSelectThisNodeFunctionName = NAME_None) override;;
+    virtual FName GetWhenSelectThisNodeFunctionName() const override;
+    virtual void SetWhenSelectThisNodeFunctionName(FName InWhenSelectThisNodeFunctionName = NAME_None) override;
 
 protected: // UEdGraphNode
     bool bAllowRecursiveConnection = false;

@@ -19,7 +19,7 @@ void UDialogueEdGraphEndNode::Accept(FAbstractDialogueEdGraphVisitor* Visitor)
     Visitor->VisitEndNode(this);
 }
 
-TArray<const UDialogueEdGraphNode*> UDialogueEdGraphEndNode::GetPrevNodes() const
+TArray<TObjectPtr<const UDialogueEdGraphNode>> UDialogueEdGraphEndNode::GetPrevNodes() const
 {
     const auto InputPin = Algo::FindByPredicate(Pins, [](const UEdGraphPin* Pin)
     {
@@ -29,7 +29,7 @@ TArray<const UDialogueEdGraphNode*> UDialogueEdGraphEndNode::GetPrevNodes() cons
     checkf(InputPin, TEXT("InputPin은 무조건 존재해야 합니다."))
 
     // 한 핀에 들어 올 수 있는 입력은 여러개일 수 있다.
-    TArray<const UDialogueEdGraphNode*> Output;
+    TArray<TObjectPtr<const UDialogueEdGraphNode>> Output;
 
     // 입력핀과 연결되어 있는 핀들의 소유주를 목록화 해서 반환
     Algo::Transform((*InputPin)->LinkedTo, Output, [](const UEdGraphPin* Pin)

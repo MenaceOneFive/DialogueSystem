@@ -36,5 +36,5 @@ class DIALOGUESYSTEMEDITOR_API UDialogueEdGraphAssetData : public UAssetUserData
 
 public:
     UPROPERTY()
-    UDialogueEdGraph* DialogueEdGraph;
+    TObjectPtr<UDialogueEdGraph> DialogueEdGraph;
 };

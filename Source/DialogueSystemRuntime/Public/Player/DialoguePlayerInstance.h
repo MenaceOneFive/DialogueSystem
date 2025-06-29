@@ -55,7 +55,7 @@
 //                     const UDialogueGraph* InDialogueGraph,
 //                     const FMovieSceneSequencePlaybackSettings& InSettings
 //                             = GetDefaultMovieSceneSequencePlaybackSettings());
-//     virtual void BeginDestroy() override;;
+//     virtual void BeginDestroy() override;
 //
 //     static FMovieSceneSequencePlaybackSettings GetDefaultMovieSceneSequencePlaybackSettings();
 //
@@ -181,6 +181,7 @@
 // };
 
 
+class UDialogueGraph;
 class ULevelSequencePlayerHolder;
 class UDialogueGraphDirector;
 class UDialogueUIComponent;
@@ -260,13 +261,13 @@ public:
 
 public: // IDialogueGraphVisitor 구현
     virtual void InitializeVisitor() override;
-    virtual void VisitStartNode(const UDialogueStartNode* StartNode) override;
-    virtual void VisitSelectionNode(const UDialogueSelectionNode* SelectionNode) override;
-    virtual void VisitSceneNode(const UDialogueSceneNode* SceneNode) override;
-    virtual void VisitEndNode(const UDialogueEndNode* EndNode) override;
-    virtual void VisitEventNode(const UDialogueEventNode* EventNode) override;
-    void WhenVisitThisNode(const UDialogueGraphNode* InPrevNode,
-                           const UDialogueGraphNode* InCurrentNode) const;
+    virtual void VisitStartNode(const TObjectPtr<const UDialogueStartNode>& StartNode) override;
+    virtual void VisitSelectionNode(const TObjectPtr<const UDialogueSelectionNode>& SelectionNode) override;
+    virtual void VisitSceneNode(const TObjectPtr<const UDialogueSceneNode>& SceneNode) override;
+    virtual void VisitEndNode(const TObjectPtr<const UDialogueEndNode>& EndNode) override;
+    virtual void VisitEventNode(const TObjectPtr<const UDialogueEventNode>& EventNode) override;
+    void WhenVisitThisNode(const TObjectPtr<const UDialogueGraphNode>& InPrevNode,
+                           const TObjectPtr<const UDialogueGraphNode>& InCurrentNode) const;
 
 private:
     UFUNCTION()
@@ -287,24 +288,24 @@ private:
 
     // 현재 재생에 사용하는 그래프
     UPROPERTY()
-    const UDialogueGraph* DialogueGraph;
+    TObjectPtr<const UDialogueGraph> DialogueGraph;
 
     // 현재 SceneNode의 재생을 담당하는 플레이어를 담은 홀더
     UPROPERTY()
-    ULevelSequencePlayerHolder* CurrentHolder;
+    TObjectPtr<ULevelSequencePlayerHolder> CurrentHolder;
 
     // 조금 더 빠르게 Holder를 탐색하기 위해 만든 Map
     UPROPERTY()
-    TMap<const UDialogueSceneNode*, ULevelSequencePlayerHolder*> SceneNodeToPlayerHolder;
+    TMap<TObjectPtr<const UDialogueSceneNode>, TObjectPtr<ULevelSequencePlayerHolder>> SceneNodeToPlayerHolder;
 
     // 다음 노드에 대한 참조
     UPROPERTY()
-    const UDialogueGraphNode* NextNode;
+    TObjectPtr<const UDialogueGraphNode> NextNode;
 
     // 이전 노드에 대한 참조
     UPROPERTY()
-    const UDialogueGraphNode* PrevNode;
+    TObjectPtr<const UDialogueGraphNode> PrevNode;
 
     UPROPERTY()
-    UDialogueGraphDirector* DialogueGraphDirector;
+    TObjectPtr<UDialogueGraphDirector> DialogueGraphDirector;
 };

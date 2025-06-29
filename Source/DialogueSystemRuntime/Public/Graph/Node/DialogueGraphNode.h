@@ -16,13 +16,13 @@ class DIALOGUESYSTEMRUNTIME_API UDialogueGraphNode : public UObject,
 public:
     UDialogueGraphNode();
 
-    virtual void BeginDestroy() override;;
+    virtual void BeginDestroy() override;
 
 public:
     /// 파생 클래스에서 Visitor의 어느 기능을 통해서 처리할지 정함
     /// 만약 이 클래스의 파생 클래스를 작성한다면, 파생 클래스에 특화된 코드를 Visitor에 구현해야 한다.
     /// <param name="Visitor">이 노드의 데이터를 사용할 Visitor구현</param>
-    virtual void Accept(IRuntimeDialogueGraphVisitor* Visitor) const PURE_VIRTUAL(UDialogueNode::VisitNode,);
+    virtual void Accept(TObjectPtr<IRuntimeDialogueGraphVisitor> Visitor) const PURE_VIRTUAL(UDialogueNode::VisitNode,);
 
     /// <summary>
     /// 노드의 고유 ID를 반환합니다.

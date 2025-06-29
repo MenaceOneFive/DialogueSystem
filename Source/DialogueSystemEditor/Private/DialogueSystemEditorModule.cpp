@@ -4,14 +4,12 @@
 #include "Graph/DialogueGraphEditorCommands.h"
 #include "Graph/DialogueGraphPanelNodeFactory.h"
 #include "MovieScene/TrackEditor/DialogueLineTrackEditor.h"
-#include "MovieScene/TrackEditor/DialogueTrackEditor.h"
 
 void FDialogueSystemEditorModule::StartupModule()
 {
     // 시퀀서에 트랙 에디터 등록
     ISequencerModule& SequencerModule     = FModuleManager::LoadModuleChecked<ISequencerModule>("Sequencer");
     DialogueLineTrackEditorDelegateHandle = SequencerModule.RegisterTrackEditor(FOnCreateTrackEditor::CreateStatic(&FDialogueLineTrackEditor::CreateTrackEditor));
-    DialogueTrackEditorDelegateHandle     = SequencerModule.RegisterTrackEditor(FOnCreateTrackEditor::CreateStatic(&FDialogueTrackEditor::CreateTrackEditor));
 
     // TODO: 모델 정의
     // SequencerModule.RegisterTrackModel(FOnCreateTrackModel::CreateStatic());
@@ -59,7 +57,6 @@ void FDialogueSystemEditorModule::ShutdownModule()
     if ( FModuleManager::Get().IsModuleLoaded("PropertyEditor") )
     {
         FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
-        PropertyModule.UnregisterCustomClassLayout(UDialogueEdGraphDialogueLineNode::StaticClass()->GetFName());
         PropertyModule.UnregisterCustomPropertyTypeLayout(FName("FDialogueLineCreationPrompt"));
     }
 

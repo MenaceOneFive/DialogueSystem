@@ -23,9 +23,9 @@ class DIALOGUESYSTEMRUNTIME_API IDialoguePositionController
 
     // Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-    virtual UDialogueGraphNode* GetPrevDialoguePosition() = 0;
-    virtual UDialogueGraphNode* GetCurrentDialoguePosition() = 0;
+    virtual TObjectPtr<UDialogueGraphNode> GetPrevDialoguePosition() = 0;
+    virtual TObjectPtr<UDialogueGraphNode> GetCurrentDialoguePosition() = 0;
 
-    virtual void SetPrevDialoguePosition(UDialogueGraphNode* DialogueGraphNode) = 0;
-    virtual void SetCurrentDialoguePosition(UDialogueGraphNode* DialogueGraphNode) = 0;
+    virtual void SetPrevDialoguePosition(const TObjectPtr<UDialogueGraphNode>& DialogueGraphNode) = 0;
+    virtual void SetCurrentDialoguePosition(const TObjectPtr<UDialogueGraphNode>& DialogueGraphNode) = 0;
 };

@@ -11,7 +11,7 @@ class DIALOGUESYSTEMRUNTIME_API UDialogueSelectionNode : public UDialogueConditi
     GENERATED_BODY()
 
 public:
-    virtual void Accept(IRuntimeDialogueGraphVisitor* Visitor) const override;
+    virtual void Accept(TObjectPtr<IRuntimeDialogueGraphVisitor> Visitor) const override;
 
     /// <summary>
     /// 현재 노드의 선택지 항목들을 반환합니다.
