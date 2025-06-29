@@ -6,6 +6,7 @@
 #include "CoreMinimal.h"
 #include "DialogueUIComponent.generated.h"
 
+class UDialogueSelectionItem;
 class IDialogueSelectionContainerWidget;
 class UDialogueGraphNode;
 class UDialogueSceneNode;
@@ -150,11 +151,11 @@ private:
     void SetSubtitleTextOnly(FString SubtitleText) const;
 
 public:
-    UUserWidget* GetRootWidget();
+    TObjectPtr<UUserWidget> GetRootWidget();
 
 private:
     UPROPERTY(VisibleAnywhere)
-    UUserWidget* RootWidget;
+    TObjectPtr<UUserWidget> RootWidget;
 
     UPROPERTY(VisibleAnywhere)
     TScriptInterface<IDialogueSubtitleWidget> SubtitleWidget;

@@ -47,7 +47,7 @@ void UDialogueEdGraphSelectNode::Accept(FAbstractDialogueEdGraphVisitor* Visitor
     Visitor->VisitSelectNode(this);
 }
 
-TArray<const UDialogueEdGraphNode*> UDialogueEdGraphSelectNode::GetNextNodes() const
+TArray<TObjectPtr<const UDialogueEdGraphNode>> UDialogueEdGraphSelectNode::GetNextNodes() const
 {
     // 출력핀만 필터링한다.
     TArray<UEdGraphPin*> OutputPins;
@@ -57,7 +57,7 @@ TArray<const UDialogueEdGraphNode*> UDialogueEdGraphSelectNode::GetNextNodes() c
     });
 
     // 핀에 해당하는 노드를 찾아서 배열에 추가한다.
-    TArray<const UDialogueEdGraphNode*> OutputNodes;
+    TArray<TObjectPtr<const UDialogueEdGraphNode>> OutputNodes;
     for ( UEdGraphPin* OutputPin : OutputPins )
     {
         if ( OutputPin->LinkedTo.IsEmpty() )
@@ -79,7 +79,7 @@ TArray<const UDialogueEdGraphNode*> UDialogueEdGraphSelectNode::GetNextNodes() c
     return OutputNodes;
 }
 
-TArray<const UDialogueEdGraphNode*> UDialogueEdGraphSelectNode::GetPrevNodes() const
+TArray<TObjectPtr<const UDialogueEdGraphNode>> UDialogueEdGraphSelectNode::GetPrevNodes() const
 {
     const auto InputPin = Algo::FindByPredicate(Pins, [](const UEdGraphPin* Pin)
     {
@@ -89,7 +89,7 @@ TArray<const UDialogueEdGraphNode*> UDialogueEdGraphSelectNode::GetPrevNodes() c
     checkf(InputPin, TEXT("InputPin은 무조건 존재해야 합니다."))
 
     // 한 핀에 들어 올 수 있는 입력은 여러개일 수 있다.
-    TArray<const UDialogueEdGraphNode*> Output;
+    TArray<TObjectPtr<const UDialogueEdGraphNode>> Output;
 
     // 입력핀과 연결되어 있는 핀들의 소유주를 목록화 해서 반환
     Algo::Transform((*InputPin)->LinkedTo, Output, [](const UEdGraphPin* Pin)

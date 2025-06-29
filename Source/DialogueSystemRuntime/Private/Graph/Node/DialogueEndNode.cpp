@@ -1,7 +1,7 @@
 #include "Graph/Node/DialogueEndNode.h"
 #include "Graph/DialogueGraphVisitor.h"
 
-void UDialogueEndNode::Accept(IRuntimeDialogueGraphVisitor* Visitor) const
+void UDialogueEndNode::Accept(TObjectPtr<IRuntimeDialogueGraphVisitor> Visitor) const
 {
     Visitor->VisitEndNode(this);
 }

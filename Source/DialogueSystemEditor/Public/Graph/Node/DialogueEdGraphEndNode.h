@@ -22,5 +22,5 @@ public: // Visitor패턴 관련
     /// 이전 노드의 목록을 반환 
     /// </summary>
     /// <returns>이전 노드의 목록</returns>
-    TArray<const UDialogueEdGraphNode*> GetPrevNodes() const;
+    TArray<TObjectPtr<const UDialogueEdGraphNode>> GetPrevNodes() const;
 };

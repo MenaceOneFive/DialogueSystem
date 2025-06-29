@@ -2,7 +2,6 @@
 
 
 #include "Track/DialogueLineTrack.h"
-
 #include "Section/DialogueLineSection.h"
 #include "Track/DialogueLineTrackInstance.h"
 

@@ -1,10 +1,11 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 #include "Graph/DialogueGraph.h"
 #include "Graph/Node/DialogueGraphNode.h"
+#include "Graph/Node/DialogueStartNode.h"
 
 #if WITH_EDITORONLY_DATA
 
-UBlueprint* UDialogueGraph::GetBlueprintInstance() const
+TObjectPtr<UBlueprint> UDialogueGraph::GetBlueprintInstance() const
 {
     return BlueprintInstance;
 }
@@ -37,7 +38,7 @@ FString UDialogueGraph::GetMemo() const
     return Memo;
 }
 
-void UDialogueGraph::OnDirectorRecompiled(UBlueprint* InBlueprint)
+void UDialogueGraph::OnDirectorRecompiled(TObjectPtr<UBlueprint> InBlueprint)
 {
     check(InBlueprint == BlueprintInstance)
     BlueprintClass = InBlueprint->GeneratedClass.Get();
@@ -78,7 +79,7 @@ UDialogueStartNode* UDialogueGraph::GetStartNode() const
     return StartNode;
 }
 
-void UDialogueGraph::SetStartNode(UDialogueStartNode* InStartNode)
+void UDialogueGraph::SetStartNode(TObjectPtr<UDialogueStartNode> InStartNode)
 {
     StartNode = InStartNode;
 }
@@ -97,11 +98,11 @@ void UDialogueGraph::Clear()
     }
 }
 
-TArray<const UDialogueGraphNode*> UDialogueGraph::GetNodes() const
+TArray<TObjectPtr<const UDialogueGraphNode>> UDialogueGraph::GetNodes() const
 {
     TArray<UDialogueGraphNode*> ValueArray;
     Nodes.GenerateValueArray(ValueArray);
-    return TArray<const UDialogueGraphNode*>(ValueArray);
+    return TArray<TObjectPtr<const UDialogueGraphNode>>(ValueArray);
 }
 
 bool UDialogueGraph::ContainsNode(const UDialogueGraphNode* GraphNode) const
@@ -109,7 +110,7 @@ bool UDialogueGraph::ContainsNode(const UDialogueGraphNode* GraphNode) const
     return Nodes.Contains(GraphNode->GetNodeID());
 }
 
-const UDialogueGraphNode* UDialogueGraph::GetNode(const FGuid NodeID) const
+TObjectPtr<const UDialogueGraphNode> UDialogueGraph::GetNode(const FGuid NodeID) const
 {
     if ( !Nodes.Contains(NodeID) )
     {

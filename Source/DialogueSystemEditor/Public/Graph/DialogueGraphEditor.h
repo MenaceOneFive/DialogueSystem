@@ -228,7 +228,7 @@ public:
     /// </summary>
     /// <param name="Node">그래프 에디터 노드</param>
     /// <returns>노드를 보유하고 있는 에셋</returns>
-    TObjectPtr<UDialogueGraph> GetDialogueAsset(const UDialogueEdGraphNode* Node) const;;
+    TObjectPtr<UDialogueGraph> GetDialogueAsset(const UDialogueEdGraphNode* Node) const;
 
     static void OnBlueprintChanged(UBlueprint* Blueprint);
 };

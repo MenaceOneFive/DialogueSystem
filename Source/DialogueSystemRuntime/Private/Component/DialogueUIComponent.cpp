@@ -102,7 +102,7 @@ void UDialogueUIComponent::BeginPlay()
 
 void UDialogueUIComponent::InvalidateSelectionItems() const
 {
-    if (SelectionWidget)
+    if ( SelectionWidget )
     {
         IDialogueSelectionContainerWidget::Execute_ResetAllSelectionItem(SelectionWidget.GetObject());
     }
@@ -111,7 +111,7 @@ void UDialogueUIComponent::InvalidateSelectionItems() const
 void UDialogueUIComponent::SetSpeakingCharacterAndSubtitleText(const FString& NameOfSpeakingCharacter,
                                                                const FString& SubtitleText) const
 {
-    if (SubtitleWidget)
+    if ( SubtitleWidget )
     {
         IDialogueSubtitleWidget::Execute_SetSpeakingCharacterAndSubtitleText(SubtitleWidget.GetObject(), NameOfSpeakingCharacter, SubtitleText);
     }
@@ -119,13 +119,13 @@ void UDialogueUIComponent::SetSpeakingCharacterAndSubtitleText(const FString& Na
 
 void UDialogueUIComponent::SetSubtitleTextOnly(const FString SubtitleText) const
 {
-    if (SubtitleWidget)
+    if ( SubtitleWidget )
     {
         IDialogueSubtitleWidget::Execute_SetSubtitleText(SubtitleWidget.GetObject(), SubtitleText);
     }
 }
 
-UUserWidget* UDialogueUIComponent::GetRootWidget()
+TObjectPtr<UUserWidget> UDialogueUIComponent::GetRootWidget()
 {
     return RootWidget;
 }
@@ -154,8 +154,8 @@ void UDialogueUIComponent::SetSelectionItem(const TArray<UDialogueSelectionItem*
     checkf(Num <= 8, TEXT("선택지는 8개를 넘길 수 없습니다."))
 
     InvalidateSelectionItems();
-    
-    if (SelectionWidget)
+
+    if ( SelectionWidget )
     {
         if ( Num > 0 )
         {
@@ -195,7 +195,7 @@ void UDialogueUIComponent::SetSelectionItem(const TArray<UDialogueSelectionItem*
 
 void UDialogueUIComponent::ShowSelectionUI() const
 {
-    if (SelectionWidget)
+    if ( SelectionWidget )
     {
         IDialogueSelectionContainerWidget::Execute_ShowSelectionWidget(SelectionWidget.GetObject());
     }
@@ -203,7 +203,7 @@ void UDialogueUIComponent::ShowSelectionUI() const
 
 void UDialogueUIComponent::HideSelectionUI() const
 {
-    if (SelectionWidget)
+    if ( SelectionWidget )
     {
         IDialogueSelectionContainerWidget::Execute_HideSelectionWidget(SelectionWidget.GetObject());
     }
@@ -211,7 +211,7 @@ void UDialogueUIComponent::HideSelectionUI() const
 
 FString UDialogueUIComponent::GetSubtitleText() const
 {
-    if (SubtitleWidget)
+    if ( SubtitleWidget )
     {
         return IDialogueSubtitleWidget::Execute_GetSubtitleText(SubtitleWidget.GetObject());
     }
@@ -220,7 +220,7 @@ FString UDialogueUIComponent::GetSubtitleText() const
 
 void UDialogueUIComponent::ShowSubtitle() const
 {
-    if (SubtitleWidget)
+    if ( SubtitleWidget )
     {
         IDialogueSubtitleWidget::Execute_ShowSubtitle(SubtitleWidget.GetObject());
     }
@@ -228,7 +228,7 @@ void UDialogueUIComponent::ShowSubtitle() const
 
 void UDialogueUIComponent::HideSubtitle() const
 {
-    if (SubtitleWidget)
+    if ( SubtitleWidget )
     {
         IDialogueSubtitleWidget::Execute_HideSubtitle(SubtitleWidget.GetObject());
     }

@@ -30,11 +30,11 @@ class DIALOGUESYSTEMEDITOR_API UDialogueEdGraphDialogueLineNode : public UDialog
 public:
     // 대사를 말하는 캐릭터
     UPROPERTY(EditAnywhere)
-    UDialogueCharacterAsset* DialogueCharacterAsset;
+    TObjectPtr<UDialogueCharacterAsset> DialogueCharacterAsset;
 
     // 생성된 MovieScene
     UPROPERTY(EditAnywhere)
-    ULevelSequence* LevelSequenceToPlay;
+    TObjectPtr<ULevelSequence> LevelSequenceToPlay;
 
     // 실제 사용할 대사 (생성하거나 직접 작성할 수 있다.)
     UPROPERTY(EditAnywhere)
@@ -60,13 +60,13 @@ public: // Visitor 패턴
     /// 다음 노드를 반환 
     /// </summary>
     /// <returns>다음 노드</returns>
-    const UDialogueEdGraphNode* GetNextNode() const;
+    TObjectPtr<const UDialogueEdGraphNode> GetNextNode() const;
 
     /// <summary>
     /// 이전 노드의 목록을 반환 
     /// </summary>
     /// <returns>이전 노드의 목록</returns>
-    TArray<const UDialogueEdGraphNode*> GetPrevNodes() const;
+    TArray<TObjectPtr<const UDialogueEdGraphNode>> GetPrevNodes() const;
 
 public: // UObject 
     virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;

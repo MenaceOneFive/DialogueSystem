@@ -9,11 +9,10 @@ FName UDialogueGraphDirector::CanSelectThisNodeSignatureName  = "CanSelectThisNo
 FName UDialogueGraphDirector::WhenSelectThisNodeSignatureName = "WhenSelectThisNodeSignature";
 
 bool UDialogueGraphDirector::CanVisitNode(const TObjectPtr<UFunction>& Function,
-                                          const UDialogueGraphNode* NextNodeToVisit)
+                                          const TObjectPtr<const UDialogueGraphNode>& NextNodeToVisit)
 {
-    check(Function && Function->IsValidLowLevel())
-    check(NextNodeToVisit)
-
+    checkf(IsValid(Function), TEXT("Function은 nullptr일 수 없습니다."))
+    checkf(IsValid(NextNodeToVisit), TEXT("방문할 노드는 nullptr일 수 없습니다."))
 
     UE_LOG(LogTemp, Log, TEXT("CanVisitNode(NextNodeToVisit: %s)"), *NextNodeToVisit->GetName())
 
@@ -23,9 +22,14 @@ bool UDialogueGraphDirector::CanVisitNode(const TObjectPtr<UFunction>& Function,
 }
 
 void UDialogueGraphDirector::WhenVisitThisNode(const TObjectPtr<UFunction>& Function,
-                                               const UDialogueGraphNode* PrevNode,
-                                               const UDialogueGraphNode* CurrentNode)
+                                               const TObjectPtr<const UDialogueGraphNode>& PrevNode,
+                                               const TObjectPtr<const UDialogueGraphNode>& CurrentNode)
 {
+    checkf(IsValid(Function), TEXT("Function은 nullptr일 수 없습니다."))
+
+    // 시작 노드도 이 메서드를 사용하므로 PrevNode는 nullptr이 될 수 있다.
+    checkf(IsValid(CurrentNode), TEXT("CurrentNode는 nullptr일 수 없습니다."))
+
     if ( !PrevNode )
     {
         UE_LOG(LogTemp, Log, TEXT("WhenVisitThisNode(PrevNode : nullptr, CurrentNode : %s)"), *CurrentNode->GetName())
@@ -34,5 +38,6 @@ void UDialogueGraphDirector::WhenVisitThisNode(const TObjectPtr<UFunction>& Func
     {
         UE_LOG(LogTemp, Log, TEXT("WhenVisitThisNode(PrevNode : %s, CurrentNode : %s)"), *PrevNode->GetName(), *CurrentNode->GetName())
     }
-    InvokeTwoInputBlueprintFunction(Function, PrevNode, CurrentNode);
+
+    InvokeTwoInputBlueprintFunction(Function, PrevNode.Get(), CurrentNode.Get());
 }

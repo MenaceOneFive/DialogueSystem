@@ -24,13 +24,13 @@ public: // Visitor 패턴
     /// 현재 노드의 다음 노드들(선택지들)을 반환
     /// </summary>
     /// <returns>다음 노드(선택지들)</returns>
-    TArray<const UDialogueEdGraphNode*> GetNextNodes() const;
+    TArray<TObjectPtr<const UDialogueEdGraphNode>> GetNextNodes() const;
 
     /// <summary>
     /// 이전 노드의 목록을 반환 
     /// </summary>
     /// <returns>이전 노드의 목록</returns>
-    TArray<const UDialogueEdGraphNode*> GetPrevNodes() const;
+    TArray<TObjectPtr<const UDialogueEdGraphNode>> GetPrevNodes() const;
 
 private:
     int32 PinCounter = 0;

@@ -36,7 +36,7 @@ void UDialogueEdGraphDialogueLineNode::Accept(FAbstractDialogueEdGraphVisitor* V
     Visitor->VisitLineNode(this);
 }
 
-const UDialogueEdGraphNode* UDialogueEdGraphDialogueLineNode::GetNextNode() const
+TObjectPtr<const UDialogueEdGraphNode> UDialogueEdGraphDialogueLineNode::GetNextNode() const
 {
     // LineNode 출력 1개만 갖고 있다고 가정한다.
     UEdGraphPin* PinToNext = *Algo::FindByPredicate(Pins, [](const UEdGraphPin* Pin)
@@ -62,7 +62,7 @@ const UDialogueEdGraphNode* UDialogueEdGraphDialogueLineNode::GetNextNode() cons
 }
 
 
-TArray<const UDialogueEdGraphNode*> UDialogueEdGraphDialogueLineNode::GetPrevNodes() const
+TArray<TObjectPtr<const UDialogueEdGraphNode>> UDialogueEdGraphDialogueLineNode::GetPrevNodes() const
 {
     const auto InputPin = Algo::FindByPredicate(Pins, [](const UEdGraphPin* Pin)
     {
@@ -72,7 +72,7 @@ TArray<const UDialogueEdGraphNode*> UDialogueEdGraphDialogueLineNode::GetPrevNod
     checkf(InputPin, TEXT("InputPin은 무조건 존재해야 합니다."))
 
     // 한 핀에 들어 올 수 있는 입력은 여러개일 수 있다.
-    TArray<const UDialogueEdGraphNode*> Output;
+    TArray<TObjectPtr<const UDialogueEdGraphNode>> Output;
 
     // 입력핀과 연결되어 있는 핀들의 소유주를 목록화 해서 반환
     Algo::Transform((*InputPin)->LinkedTo, Output, [](const UEdGraphPin* Pin)

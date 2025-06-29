@@ -10,8 +10,8 @@ class DIALOGUESYSTEMRUNTIME_API UDialogueConditionalNode : public UDialogueGraph
     GENERATED_BODY()
 
 public:
-    virtual FName GetCanSelectThisNodeFunctionName() const override;;
-    virtual void SetCanSelectThisNodeFunctionName(FName InCanSelectThisNodeFunctionName = NAME_None) override;;
+    virtual FName GetCanSelectThisNodeFunctionName() const override;
+    virtual void SetCanSelectThisNodeFunctionName(FName InCanSelectThisNodeFunctionName = NAME_None) override;
 
 protected:
     UPROPERTY(VisibleAnywhere)

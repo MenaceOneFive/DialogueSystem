@@ -1,8 +1,8 @@
 #include "Graph/Node/DialogueSceneNode.h"
-#include "Graph/DialogueGraphVisitor.h"
 #include "MovieSceneSequence.h"
+#include "Graph/DialogueGraphVisitor.h"
 
-void UDialogueSceneNode::Accept(IRuntimeDialogueGraphVisitor* Visitor) const
+void UDialogueSceneNode::Accept(TObjectPtr<IRuntimeDialogueGraphVisitor> Visitor) const
 {
     Visitor->VisitSceneNode(this);
 }

@@ -2,7 +2,7 @@
 #include "Graph/DialogueGraphVisitor.h"
 #include "Graph/Node/DialogueSelectionItem.h"
 
-void UDialogueSelectionNode::Accept(IRuntimeDialogueGraphVisitor* Visitor) const
+void UDialogueSelectionNode::Accept(TObjectPtr<IRuntimeDialogueGraphVisitor> Visitor) const
 {
     Visitor->VisitSelectionNode(this);
 }
@@ -15,7 +15,7 @@ TArray<UDialogueSelectionItem*> UDialogueSelectionNode::GetSelectionItems() cons
 void UDialogueSelectionNode::SetSelectionItems(const TArray<UDialogueSelectionItem*>& Items)
 {
     this->SelectionItems.Empty();
-    for(UDialogueSelectionItem* Item : Items)
+    for ( UDialogueSelectionItem* Item : Items )
     {
         this->SelectionItems.Add(Item);
     }
