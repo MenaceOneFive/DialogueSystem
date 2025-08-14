@@ -3,11 +3,12 @@
 
 #include "Graph/DialogueGraphPanelNodeFactory.h"
 
+#include "EdGraphNode_Comment.h"
+#include "SGraphNodeComment.h"
 #include "SGraphNodeKnot.h"
 #include "Graph/Node/DialogueEdGraphDialogueLineNode.h"
 #include "Graph/Node/DialogueEdGraphEndNode.h"
 #include "Graph/Node/DialogueEdGraphKnotNode.h"
-#include "Graph/Node/DialogueEdGraphNode.h"
 #include "Graph/Node/DialogueEdGraphSelectNode.h"
 #include "Graph/Node/DialogueEdGraphStartNode.h"
 #include "Graph/Slate/Node/SDialogueEdGraphEndNode.h"
@@ -54,6 +55,10 @@ TSharedPtr<SGraphNode> FDialogueGraphPanelNodeFactory::CreateNode(UEdGraphNode* 
     if (Node->IsA<UDialogueEdGraphKnotNode>())
     {
         return SNew(SGraphNodeKnot, Node);
+    }
+    if (Node->IsA<UEdGraphNode_Comment>())
+    {
+        return SNew(SGraphNodeComment, Cast<UEdGraphNode_Comment>(Node));
     }
     return nullptr;
 }

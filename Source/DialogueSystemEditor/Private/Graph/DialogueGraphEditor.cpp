@@ -2,6 +2,7 @@
 
 #include "DialogueEdGraphVisitor.h"
 #include "DialogueGraphBlueprintExtension.h"
+#include "EdGraphNode_Comment.h"
 #include "EdGraphUtilities.h"
 #include "GraphEditor.h"
 #include "PropertyEditorModule.h"
@@ -117,6 +118,12 @@ void FDialogueGraphEditor::InitDialogueGraphEditor(const EToolkitMode::Type Mode
         GraphEditorCommands->MapAction(FDialogueGraphEditorCommands::Get().Command1,
                                        FExecuteAction::CreateSP(this, &FDialogueGraphEditor::OnCreateComment),
                                        FCanExecuteAction::CreateLambda([]() { return true; }));
+        GraphEditorCommands->MapAction(FDialogueGraphEditorCommands::Get().CommentSelection,
+                                       FExecuteAction::CreateSP(this, &FDialogueGraphEditor::OnCreateComment),
+                                       FCanExecuteAction::CreateLambda([this]()
+                                       {
+                                           return !this->GetSelectedNodes().IsEmpty();
+                                       }));
 
         // 노드 삭제 명령
         GraphEditorCommands->MapAction(FDialogueGraphEditorCommands::Get().DeleteSelectedNode,
@@ -380,6 +387,16 @@ void FDialogueGraphEditor::PostRedo(bool bSuccess)
     }
 }
 
+void FDialogueGraphEditor::OnNodeTitleCommitted(const FText& Text, ETextCommit::Type Arg, UEdGraphNode* EdGraphNode) const
+{
+    if (const auto CommentNode = Cast<UEdGraphNode_Comment>(EdGraphNode))
+    {
+        const FScopedTransaction Transaction(NSLOCTEXT("DialogueGraph_RenameNode", "RenameNode", "Rename Node"));
+        CommentNode->Modify();
+        CommentNode->OnRenameNode(Text.ToString());
+    }
+}
+
 #pragma endregion
 
 /// <summary>
@@ -461,7 +478,26 @@ TSharedRef<SGraphEditor> FDialogueGraphEditor::CreateGraphEditorWidget(UDialogue
 void FDialogueGraphEditor::OnCreateComment() const
 {
     // 코멘트 노드 생성 로직
-    // ...
+    if (const auto GraphEditor = this->FocusedGraphEdPtr.Pin())
+    {
+        const auto Graph                   = GraphEditor->GetCurrentGraph();
+        const auto CommentNode             = NewObject<UEdGraphNode_Comment>(Graph);
+        CommentNode->bCanRenameNode        = true;
+        CommentNode->bCommentBubbleVisible = false;
+
+        // 현재 선택한 노드들의 영역을 산출
+        FSlateRect BoundSize;
+        GraphEditor->GetBoundsForSelectedNodes(BoundSize, 50.f);
+        CommentNode->SetBounds(BoundSize);
+
+        CommentNode->NodeComment = "Comment";
+
+        // 최종적으로 생성된 노드를 그래프에 더한다.
+        Graph->AddNode(CommentNode);
+
+        Graph->NotifyNodeChanged(CommentNode);
+        Graph->NotifyGraphChanged();
+    }
 }
 
 
@@ -511,6 +547,12 @@ void FDialogueGraphEditor::GenerateRuntimeGraph() const
             continue;
         }
 
+        // 주석 노드인 경우
+        if (EdGraphNode->IsA<UEdGraphNode_Comment>())
+        {
+            continue;
+        }
+
         if (RuntimeNode == nullptr)
         {
             UE_LOG(LogTemp, Warning, TEXT("비정상적인 Node타입이 있습니다."))
@@ -530,7 +572,8 @@ void FDialogueGraphEditor::GenerateRuntimeGraph() const
     // 개별 노드를 순회하면서 연결 정보 갱신
     for (const TObjectPtr EdGraphNode : EditorGraph->Nodes)
     {
-        if (const auto DialogueEdGraphNode = Cast<UDialogueEdGraphNode>(EdGraphNode); !DialogueEdGraphNode->IsA<UDialogueEdGraphKnotNode>())
+        if (const auto DialogueEdGraphNode = Cast<UDialogueEdGraphNode>(EdGraphNode);
+            DialogueEdGraphNode && !DialogueEdGraphNode->IsA<UDialogueEdGraphKnotNode>())
         {
             DialogueEdGraphNode->Accept(Connector.Get());
         }
@@ -541,7 +584,8 @@ void FDialogueGraphEditor::GenerateRuntimeGraph() const
 
     for (const TObjectPtr EdGraphNode : EditorGraph->Nodes)
     {
-        if (const auto DialogueEdGraphNode = Cast<UDialogueEdGraphNode>(EdGraphNode); !DialogueEdGraphNode->IsA<UDialogueEdGraphKnotNode>())
+        if (const auto DialogueEdGraphNode = Cast<UDialogueEdGraphNode>(EdGraphNode);
+            DialogueEdGraphNode && !DialogueEdGraphNode->IsA<UDialogueEdGraphKnotNode>())
         {
             DialogueEdGraphNode->Accept(Logger.Get());
         }
@@ -649,6 +693,7 @@ void FDialogueGraphEditor::SetupGraphEditorEvents(UDialogueEdGraph* InGraph,
     // 노드 선택 변경 이벤트 설정
     InEvents.OnSelectionChanged = SGraphEditor::FOnSelectionChanged::CreateSP(this, &FDialogueGraphEditor::OnSelectedNodesChanged);
     InEvents.OnDoubleClicked    = SGraphEditor::FOnDoubleClicked::CreateSP(this, &FDialogueGraphEditor::OnDoubleClicked);
+    InEvents.OnTextCommitted    = FOnNodeTextCommitted::CreateSP(this, &FDialogueGraphEditor::OnNodeTitleCommitted);
 }
 
 void FDialogueGraphEditor::OnSelectedNodesChanged(const TSet<UObject*>& NewSelection) const
@@ -658,7 +703,12 @@ void FDialogueGraphEditor::OnSelectedNodesChanged(const TSet<UObject*>& NewSelec
     {
         for (UObject* SelectionObj : NewSelection)
         {
-            check(SelectionObj->IsA<UDialogueEdGraphNode>())
+            if (!SelectionObj->IsA<UDialogueEdGraphNode>())
+            {
+                // 코멘트 노드처럼 완전히 UDialogueEdGraphNode가 아닌 경우 
+                continue;
+            }
+
             if (SelectionObj)
             {
                 PropertyEditor->SetObject(SelectionObj);
@@ -701,7 +751,7 @@ void FDialogueGraphEditor::RemoveSelectedNodesFrom(const TSharedPtr<SGraphEditor
             FSlateNotificationManager::Get().AddNotification(Info);
             continue; // 어떠한 경우에도 시작노드는 삭제할 수 없다.
         }
-        UDialogueEdGraphNode* NodeToRemove = Cast<UDialogueEdGraphNode>(SelectedNode);
+        UEdGraphNode* NodeToRemove = Cast<UEdGraphNode>(SelectedNode);
         FocusedGraph->RemoveNode(NodeToRemove);
     }
 }

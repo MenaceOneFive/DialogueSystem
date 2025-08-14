@@ -11,15 +11,16 @@ public:
     FDialogueGraphEditorCommands()
         : TCommands
         (
-         TEXT("FDialogueGraphEditor"),                                                         // Context name for fast lookup
-         NSLOCTEXT("Contexts", "FDialogueGraphEditor", "DialogueGraph Editor's command list"), // Localized context name for displaying
-         NAME_None,                                                                            // Parent context name. 
-         FAppStyle::GetAppStyleSetName()                                                       // Icon Style Set
-        )
+                TEXT("FDialogueGraphEditor"),                                                         // Context name for fast lookup
+                NSLOCTEXT("Contexts", "FDialogueGraphEditor", "DialogueGraph Editor's command list"), // Localized context name for displaying
+                NAME_None,                                                                            // Parent context name. 
+                FAppStyle::GetAppStyleSetName()                                                       // Icon Style Set
+                )
     {
     }
 
     TSharedPtr<FUICommandInfo> Command1;
+    TSharedPtr<FUICommandInfo> CommentSelection;
     TSharedPtr<FUICommandInfo> DeleteSelectedNode;
     TSharedPtr<FUICommandInfo> DeleteAllNodeConnection;
 
