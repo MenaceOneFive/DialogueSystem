@@ -40,15 +40,15 @@ public:
     UFUNCTION(BlueprintCallable)
     static FQualifiedFrameTimes GetQualifiedFrameTimesWithDisplayRate(UMovieSceneSequence* MovieSceneSequence)
     {
-        if (!ensure(MovieSceneSequence))
+        if ( !ensure(MovieSceneSequence) )
         {
             return FQualifiedFrameTimes{};
         }
-        const UMovieScene* MovieScene = MovieSceneSequence->GetMovieScene();
+        const UMovieScene* MovieScene      = MovieSceneSequence->GetMovieScene();
         TRange<FFrameNumber> PlaybackRange = MovieScene->GetPlaybackRange();
 
         const FFrameRate TickResolution = MovieScene->GetTickResolution();
-        const FFrameRate DisplayRate = MovieScene->GetDisplayRate();
+        const FFrameRate DisplayRate    = MovieScene->GetDisplayRate();
 
         using namespace UE::MovieScene;
         const FFrameTime StartingTime = ConvertFrameTime(DiscreteInclusiveLower(PlaybackRange),
@@ -71,11 +71,11 @@ public:
     UFUNCTION(BlueprintCallable)
     static FQualifiedFrameTimes GetQualifiedFrameTimesWithTickRate(UMovieSceneSequence* MovieSceneSequence)
     {
-        if (!ensure(MovieSceneSequence))
+        if ( !ensure(MovieSceneSequence) )
         {
             return FQualifiedFrameTimes{};
         }
-        const UMovieScene* MovieScene = MovieSceneSequence->GetMovieScene();
+        const UMovieScene* MovieScene      = MovieSceneSequence->GetMovieScene();
         TRange<FFrameNumber> PlaybackRange = MovieScene->GetPlaybackRange();
 
         FFrameRate TickResolution = MovieScene->GetTickResolution();
@@ -100,9 +100,10 @@ public:
      * @return 틱 / 디스플레이 레이트 기준의 양끝단 프레임타임 정보
      */
     UFUNCTION(BlueprintCallable)
-    static FQualifiedFrameTimes GetQualifiedFrameTimes(UMovieSceneSequence* MovieSceneSequence, const ERateType Rate)
+    static FQualifiedFrameTimes GetQualifiedFrameTimes(UMovieSceneSequence* MovieSceneSequence,
+                                                       const ERateType Rate)
     {
-        switch (Rate)
+        switch ( Rate )
         {
         case ERateType::DisplayRate:
             return GetQualifiedFrameTimesWithDisplayRate(MovieSceneSequence);

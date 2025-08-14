@@ -16,6 +16,7 @@
 #include "Graph/DialogueGraphEditorCommands.h"
 #include "Graph/Node/DialogueEdGraphDialogueLineNode.h"
 #include "Graph/Node/DialogueEdGraphEndNode.h"
+#include "Graph/Node/DialogueEdGraphKnotNode.h"
 #include "Graph/Node/DialogueEdGraphNode.h"
 #include "Graph/Node/DialogueEdGraphSelectNode.h"
 #include "Graph/Node/DialogueEdGraphStartNode.h"
@@ -60,14 +61,14 @@ FDialogueGraphEditor::~FDialogueGraphEditor()
 {
     // Undo 클라이언트 등록 해제
     GEditor->UnregisterForUndo(this);
-    if ( DialogueGraphAsset->IsValidLowLevel() )
+    if (DialogueGraphAsset->IsValidLowLevel())
     {
         auto Extension = DialogueGraphAsset->GetBlueprintInstance()->GetExtensions().FindByPredicate(
-                                                                                                     [](TObjectPtr<UBlueprintExtension> Extention)
-                                                                                                     {
-                                                                                                         return Extention->IsA<UDialogueGraphBlueprintExtension>();
-                                                                                                     });
-        if ( Extension )
+                [](TObjectPtr<UBlueprintExtension> Extention)
+                {
+                    return Extention->IsA<UDialogueGraphBlueprintExtension>();
+                });
+        if (Extension)
         {
             DialogueGraphAsset->GetBlueprintInstance()->RemoveExtension(*Extension);
         }
@@ -82,7 +83,7 @@ void FDialogueGraphEditor::InitDialogueGraphEditor(const EToolkitMode::Type Mode
     DialogueGraphAsset   = InDialogueGraph;
     const auto Blueprint = DialogueGraphAsset->GetBlueprintInstance();
 
-    if ( OnChangedHandle.IsValid() )
+    if (OnChangedHandle.IsValid())
     {
         Blueprint->OnChanged().Remove(OnChangedHandle);
         OnChangedHandle.Reset();
@@ -94,12 +95,12 @@ void FDialogueGraphEditor::InitDialogueGraphEditor(const EToolkitMode::Type Mode
 
     const bool ContainsExtension = DialogueGraphAsset->GetBlueprintInstance()
                                                      ->GetExtensions()
-                                                     .ContainsByPredicate([](TObjectPtr<UBlueprintExtension> Extention)
-                                                     {
-                                                         return Extention->IsA<UDialogueGraphBlueprintExtension>();
-                                                     });
+                                                      .ContainsByPredicate([](TObjectPtr<UBlueprintExtension> Extention)
+                                                       {
+                                                           return Extention->IsA<UDialogueGraphBlueprintExtension>();
+                                                       });
 
-    if ( !ContainsExtension )
+    if (!ContainsExtension)
     {
         const auto DialogueBlueprintExtension = NewObject<UDialogueGraphBlueprintExtension>(Blueprint);
         Blueprint->AddExtension(DialogueBlueprintExtension);
@@ -108,7 +109,7 @@ void FDialogueGraphEditor::InitDialogueGraphEditor(const EToolkitMode::Type Mode
     OnCompiledHandle = Blueprint->OnCompiled().AddSP(this, &FDialogueGraphEditor::OnBlueprintRecompiled, DialogueGraphAsset);
 
     // 그래프 에디터 명령어 초기화
-    if ( !GraphEditorCommands.IsValid() )
+    if (!GraphEditorCommands.IsValid())
     {
         GraphEditorCommands = MakeShareable(new FUICommandList);
 
@@ -135,43 +136,43 @@ void FDialogueGraphEditor::InitDialogueGraphEditor(const EToolkitMode::Type Mode
         GraphEditorCommands->MapAction(FGenericCommands::Get().Cut,
                                        FExecuteAction::CreateSP(this, &FDialogueGraphEditor::CutSelectedNodes),
                                        FCanExecuteAction::CreateSP(this, &FDialogueGraphEditor::CanCutNodes)
-                                      );
+                );
 
         GraphEditorCommands->MapAction(FGenericCommands::Get().Copy,
                                        FExecuteAction::CreateSP(this, &FDialogueGraphEditor::CopySelectedNodes),
                                        FCanExecuteAction::CreateSP(this, &FDialogueGraphEditor::CanCopyNodes)
-                                      );
+                );
 
         GraphEditorCommands->MapAction(FGenericCommands::Get().Paste,
                                        FExecuteAction::CreateSP(this, &FDialogueGraphEditor::PasteNodes),
                                        FCanExecuteAction::CreateSP(this, &FDialogueGraphEditor::CanPasteNodes)
-                                      );
+                );
 
         GraphEditorCommands->MapAction(FGenericCommands::Get().Duplicate,
                                        FExecuteAction::CreateSP(this, &FDialogueGraphEditor::DuplicateNodes),
                                        FCanExecuteAction::CreateSP(this, &FDialogueGraphEditor::CanDuplicateNodes)
-                                      );
+                );
     }
 
 
     //FDialogueGraphEditor::CreateGraphEditorWidget
     const TSharedRef<FTabManager::FLayout> DefaultLayout = FTabManager::NewLayout("DefaultDialogueGraphEditorLayout")
-            ->AddArea
+          ->AddArea
             (FTabManager::NewPrimaryArea()
-             ->SetOrientation(Orient_Vertical)
-             ->Split(FTabManager::NewSplitter()
-                     ->SetOrientation(Orient_Horizontal)
-                     ->SetSizeCoefficient(0.9f)
-                     ->Split(FTabManager::NewStack()
-                             ->SetSizeCoefficient(0.7f)
-                             ->AddTab(DialogueGraphEditorTabs::GraphEditorID, ETabState::OpenedTab))
-                     ->Split(FTabManager::NewStack()
-                             ->SetSizeCoefficient(0.3f)
-                             ->AddTab(DialogueGraphEditorTabs::DetailsID, ETabState::OpenedTab)
-                             ->AddTab(FName("YourWidgetTabID"), ETabState::OpenedTab)
-                            )
-                    )
-            );
+           ->SetOrientation(Orient_Vertical)
+           ->Split(FTabManager::NewSplitter()
+                 ->SetOrientation(Orient_Horizontal)
+                 ->SetSizeCoefficient(0.9f)
+                 ->Split(FTabManager::NewStack()
+                       ->SetSizeCoefficient(0.7f)
+                       ->AddTab(DialogueGraphEditorTabs::GraphEditorID, ETabState::OpenedTab))
+                 ->Split(FTabManager::NewStack()
+                       ->SetSizeCoefficient(0.3f)
+                       ->AddTab(DialogueGraphEditorTabs::DetailsID, ETabState::OpenedTab)
+                       ->AddTab(FName("YourWidgetTabID"), ETabState::OpenedTab)
+                           )
+                     )
+                    );
 
     // 에셋 에디터 초기화
     constexpr bool bCreateDefaultStandaloneMenu = true;
@@ -199,15 +200,15 @@ void FDialogueGraphEditor::RegisterTabSpawners(const TSharedRef<FTabManager>& In
     // 그래프 패널
     InTabManager->RegisterTabSpawner(DialogueGraphEditorTabs::GraphEditorID,
                                      FOnSpawnTab::CreateSP(this, &FDialogueGraphEditor::GraphEditorTabSpawner))
-                .SetDisplayName(LOCTEXT("GraphTab", "Graph"))
-                .SetGroup(GetWorkspaceMenuCategory())
-                .SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "GraphEditor.EventGraph_16x"));
+                 .SetDisplayName(LOCTEXT("GraphTab", "Graph"))
+                 .SetGroup(GetWorkspaceMenuCategory())
+                 .SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "GraphEditor.EventGraph_16x"));
 
     // 속성 편집기
     InTabManager->RegisterTabSpawner(DialogueGraphEditorTabs::DetailsID,
                                      FOnSpawnTab::CreateSP(this, &FDialogueGraphEditor::PropertyTabSpawner))
-                .SetDisplayName(LOCTEXT("Details", "Detail"))
-                .SetGroup(GetWorkspaceMenuCategory());
+                 .SetDisplayName(LOCTEXT("Details", "Detail"))
+                 .SetGroup(GetWorkspaceMenuCategory());
 }
 
 void FDialogueGraphEditor::UnregisterTabSpawners(const TSharedRef<FTabManager>& InTabManager)
@@ -226,26 +227,26 @@ TSharedRef<SDockTab> FDialogueGraphEditor::GraphEditorTabSpawner(const FSpawnTab
     FocusedGraphEdPtr = GraphWidget;
 
     auto DockTab = SNew(SDockTab)
-                   .TabRole(PanelTab)
-                   .CanEverClose(false) // 나중에 다시 열기 버튼이 생기면 제거
-                   [
-                       SNew(SOverlay)
-                       + SOverlay::Slot()
-                       .HAlign(HAlign_Fill)
-                       .VAlign(VAlign_Fill)
-                       [
-                           GraphWidget
-                       ]
-                       + SOverlay::Slot()
-                       .HAlign(HAlign_Center)
-                       .VAlign(VAlign_Bottom)
-                       .Padding(FMargin{0.f, 0.f, 0.f, 60.f})
-                       .Expose(CurrentLineOverlay)
-                       [
-                           SAssignNew(Tb_CurrentLine, STextBlock)
-                           .Text(FText::FromString("Hello world"))
-                       ]
-                   ];
+                                .TabRole(PanelTab)
+                                .CanEverClose(false) // 나중에 다시 열기 버튼이 생기면 제거
+        [
+            SNew(SOverlay)
+            + SOverlay::Slot()
+             .HAlign(HAlign_Fill)
+             .VAlign(VAlign_Fill)
+            [
+                GraphWidget
+            ]
+            + SOverlay::Slot()
+             .HAlign(HAlign_Center)
+             .VAlign(VAlign_Bottom)
+             .Padding(FMargin{0.f, 0.f, 0.f, 60.f})
+             .Expose(CurrentLineOverlay)
+            [
+                SAssignNew(Tb_CurrentLine, STextBlock)
+               .Text(FText::FromString("Hello world"))
+            ]
+        ];
     HideSubtitle();
     return DockTab;
 }
@@ -294,11 +295,11 @@ TSharedRef<SDockTab> FDialogueGraphEditor::PropertyTabSpawner(const FSpawnTabArg
     PropertyEditor->SetObject(DialogueGraphAsset);
 
     TSharedRef<SDockTab> SpawnedTab = SNew(SDockTab)
-                                      .Label(LOCTEXT("DetailsPanel", "Details"))
-                                      .CanEverClose(false) // 나중에 다시 열기 버튼이 만들어지면 이 라인을 삭제
-                                      [
-                                          PropertyEditor.ToSharedRef()
-                                      ];
+                                                   .Label(LOCTEXT("DetailsPanel", "Details"))
+                                                   .CanEverClose(false) // 나중에 다시 열기 버튼이 만들어지면 이 라인을 삭제
+        [
+            PropertyEditor.ToSharedRef()
+        ];
 
     return SpawnedTab;
 }
@@ -350,10 +351,10 @@ FLinearColor FDialogueGraphEditor::GetWorldCentricTabColorScale() const
 void FDialogueGraphEditor::PostUndo(bool bSuccess)
 {
     // Undo 실행 후 UI 업데이트
-    if ( bSuccess )
+    if (bSuccess)
     {
         // 그래프 에디터 위젯 새로고침
-        if ( FocusedGraphEdPtr.IsValid() )
+        if (FocusedGraphEdPtr.IsValid())
         {
             FocusedGraphEdPtr.Pin()->NotifyGraphChanged();
         }
@@ -366,10 +367,10 @@ void FDialogueGraphEditor::PostUndo(bool bSuccess)
 void FDialogueGraphEditor::PostRedo(bool bSuccess)
 {
     // Redo 실행 후 UI 업데이트
-    if ( bSuccess )
+    if (bSuccess)
     {
         // 그래프 에디터 위젯 새로고침
-        if ( FocusedGraphEdPtr.IsValid() )
+        if (FocusedGraphEdPtr.IsValid())
         {
             FocusedGraphEdPtr.Pin()->NotifyGraphChanged();
         }
@@ -389,8 +390,8 @@ void FDialogueGraphEditor::PostRedo(bool bSuccess)
 void FDialogueGraphEditor::OnDeleteKeyPressed() const
 {
     const FScopedTransaction Transaction(LOCTEXT("DeleteNode", "Delete node from graph"));
-    if ( const TSharedPtr<SGraphEditor>
-        GraphEditor = FocusedGraphEdPtr.Pin() )
+    if (const TSharedPtr<SGraphEditor>
+        GraphEditor = FocusedGraphEdPtr.Pin())
     {
         RemoveSelectedNodesFrom(GraphEditor);
     }
@@ -414,13 +415,13 @@ void FDialogueGraphEditor::OnBlueprintRecompiled(UBlueprint* Blueprint,
     // 기존 델리게이트를 제거
     UBlueprint* OldBlueprint = Asset->GetBlueprintInstance();
 
-    if ( OnCompiledHandle.IsValid() )
+    if (OnCompiledHandle.IsValid())
     {
         OldBlueprint->OnCompiled().Remove(OnCompiledHandle);
         OnCompiledHandle.Reset();
     }
 
-    if ( OnChangedHandle.IsValid() )
+    if (OnChangedHandle.IsValid())
     {
         OldBlueprint->OnChanged().Remove(OnChangedHandle);
         OnChangedHandle.Reset();
@@ -440,9 +441,9 @@ TSharedRef<SGraphEditor> FDialogueGraphEditor::CreateGraphEditorWidget(UDialogue
 
     // 그래프 에디터 위젯 생성
     TSharedRef<SGraphEditor> GraphEditor = SNew(SGraphEditor)
-        .AdditionalCommands(GraphEditorCommands)
-        .GraphToEdit(InGraph)
-        .GraphEvents(GraphEvents);
+                                                            .AdditionalCommands(GraphEditorCommands)
+                                                            .GraphToEdit(InGraph)
+                                                            .GraphEvents(GraphEvents);
 
     // 포커스된 그래프 에디터 설정
     FocusedGraphEdPtr = GraphEditor;
@@ -475,41 +476,47 @@ void FDialogueGraphEditor::GenerateRuntimeGraph() const
     TMap<UDialogueEdGraphNode*, UDialogueGraphNode*> EditorToRuntime;
 
     // 노드 유형별로 초기화한 뒤 EditorToRuntime에 저장
-    for ( const TObjectPtr EdGraphNode : EditorGraph->Nodes )
+    for (const TObjectPtr EdGraphNode : EditorGraph->Nodes)
     {
         UDialogueGraphNode* RuntimeNode = nullptr;
 
         // 시작 노드인 경우
-        if ( EdGraphNode->IsA<UDialogueEdGraphStartNode>() )
+        if (EdGraphNode->IsA<UDialogueEdGraphStartNode>())
         {
             RuntimeNode = NewObject<UDialogueStartNode>(DialogueGraph);
             DialogueGraph->SetStartNode(Cast<UDialogueStartNode>(RuntimeNode));
         }
 
         // 종료 노드인 경우
-        if ( EdGraphNode->IsA<UDialogueEdGraphEndNode>() )
+        if (EdGraphNode->IsA<UDialogueEdGraphEndNode>())
         {
             RuntimeNode = NewObject<UDialogueEndNode>(DialogueGraph);
         }
 
         // 대사 노드인 경우
-        if ( EdGraphNode->IsA<UDialogueEdGraphDialogueLineNode>() )
+        if (EdGraphNode->IsA<UDialogueEdGraphDialogueLineNode>())
         {
             RuntimeNode = NewObject<UDialogueSceneNode>(DialogueGraph);
         }
 
         // 선택 노드인 경우
-        if ( EdGraphNode->IsA<UDialogueEdGraphSelectNode>() )
+        if (EdGraphNode->IsA<UDialogueEdGraphSelectNode>())
         {
             RuntimeNode = NewObject<UDialogueSelectionNode>(DialogueGraph);
         }
 
-        if ( RuntimeNode == nullptr )
+        // 노트 노드인 경우
+        if (EdGraphNode->IsA<UDialogueEdGraphKnotNode>())
+        {
+            continue;
+        }
+
+        if (RuntimeNode == nullptr)
         {
             UE_LOG(LogTemp, Warning, TEXT("비정상적인 Node타입이 있습니다."))
         }
 
-        // 에디터용 GUID를 런타임에서도 사용함
+        // 에디터용 GUID를 런타임에서도 사용함 -> 수정 필요
         RuntimeNode->SetNodeID(EdGraphNode->NodeGuid);
 
         EditorToRuntime.Emplace(EdGraphNode, RuntimeNode);
@@ -521,9 +528,9 @@ void FDialogueGraphEditor::GenerateRuntimeGraph() const
             MakeUnique<FDialogueEdGraphConnector>(EditorToRuntime);
 
     // 개별 노드를 순회하면서 연결 정보 갱신
-    for ( const TObjectPtr EdGraphNode : EditorGraph->Nodes )
+    for (const TObjectPtr EdGraphNode : EditorGraph->Nodes)
     {
-        if ( const auto DialogueEdGraphNode = Cast<UDialogueEdGraphNode>(EdGraphNode) )
+        if (const auto DialogueEdGraphNode = Cast<UDialogueEdGraphNode>(EdGraphNode); !DialogueEdGraphNode->IsA<UDialogueEdGraphKnotNode>())
         {
             DialogueEdGraphNode->Accept(Connector.Get());
         }
@@ -532,9 +539,9 @@ void FDialogueGraphEditor::GenerateRuntimeGraph() const
     const TUniquePtr<FAbstractDialogueEdGraphVisitor> Logger =
             MakeUnique<FDialogueEdGraphLogger>(EditorToRuntime);
 
-    for ( const TObjectPtr EdGraphNode : EditorGraph->Nodes )
+    for (const TObjectPtr EdGraphNode : EditorGraph->Nodes)
     {
-        if ( const auto DialogueEdGraphNode = Cast<UDialogueEdGraphNode>(EdGraphNode) )
+        if (const auto DialogueEdGraphNode = Cast<UDialogueEdGraphNode>(EdGraphNode); !DialogueEdGraphNode->IsA<UDialogueEdGraphKnotNode>())
         {
             DialogueEdGraphNode->Accept(Logger.Get());
         }
@@ -549,7 +556,7 @@ void FDialogueGraphEditor::SaveAsset_Execute()
 
 void FDialogueGraphEditor::DeleteSelectedNode() const
 {
-    if ( const TSharedPtr<SGraphEditor> GraphEditor = this->FocusedGraphEdPtr.Pin() )
+    if (const TSharedPtr<SGraphEditor> GraphEditor = this->FocusedGraphEdPtr.Pin())
     {
         RemoveSelectedNodesFrom(GraphEditor);
     }
@@ -557,13 +564,13 @@ void FDialogueGraphEditor::DeleteSelectedNode() const
 
 bool FDialogueGraphEditor::CanExecuteDeleteSelectedNode() const
 {
-    if ( TSharedPtr<SGraphEditor> GraphEditor = this->FocusedGraphEdPtr.Pin() )
+    if (TSharedPtr<SGraphEditor> GraphEditor = this->FocusedGraphEdPtr.Pin())
     {
-        if ( auto SelectedNodes = GraphEditor->GetSelectedNodes();
-            SelectedNodes.Num() > 0 )
+        if (auto SelectedNodes = GraphEditor->GetSelectedNodes();
+            SelectedNodes.Num() > 0)
         {
             // 시작노드만 선택한 경우에는 삭제할 수 없음
-            if ( SelectedNodes.Num() == 1 && Cast<UDialogueEdGraphStartNode>(*SelectedNodes.begin()) )
+            if (SelectedNodes.Num() == 1 && Cast<UDialogueEdGraphStartNode>(*SelectedNodes.begin()))
             {
                 return false;
             }
@@ -577,24 +584,24 @@ bool FDialogueGraphEditor::CanExecuteDeleteSelectedNode() const
 void FDialogueGraphEditor::DeleteAllNodeConnection() const
 {
     const TSharedPtr<SGraphEditor> Editor = this->FocusedGraphEdPtr.Pin();
-    if ( !Editor.IsValid() )
+    if (!Editor.IsValid())
     {
         return;
     }
 
     // 선택된 노드가 없다면 실행할 수 없다.
     const auto SelectedNodes = Editor->GetSelectedNodes();
-    if ( SelectedNodes.IsEmpty() )
+    if (SelectedNodes.IsEmpty())
     {
         return;
     }
 
-    for ( const auto SelectedNode : SelectedNodes )
+    for (const auto SelectedNode : SelectedNodes)
     {
-        if ( UDialogueEdGraphNode* Node = Cast<UDialogueEdGraphNode>(SelectedNode) )
+        if (UDialogueEdGraphNode* Node = Cast<UDialogueEdGraphNode>(SelectedNode))
         {
             FScopedTransaction Transaction{FText::FromString("Delete All Node Connection")};
-            for ( UEdGraphPin* Pin : Node->Pins )
+            for (UEdGraphPin* Pin : Node->Pins)
             {
                 Pin->BreakAllPinLinks(true);
             }
@@ -605,14 +612,14 @@ void FDialogueGraphEditor::DeleteAllNodeConnection() const
 bool FDialogueGraphEditor::CanDeleteAllNodeConnection() const
 {
     const TSharedPtr<SGraphEditor> Editor = this->FocusedGraphEdPtr.Pin();
-    if ( !Editor.IsValid() )
+    if (!Editor.IsValid())
     {
         return false;
     }
 
     // 선택된 노드가 없다면 실행할 수 없다.
     const auto SelectedNodes = Editor->GetSelectedNodes();
-    if ( SelectedNodes.IsEmpty() )
+    if (SelectedNodes.IsEmpty())
     {
         return false;
     }
@@ -620,11 +627,11 @@ bool FDialogueGraphEditor::CanDeleteAllNodeConnection() const
     // 선택된 노드 중에 연결된 노드가 존재해야 한다.
     const auto Result = Algo::FindByPredicate(SelectedNodes, [](UObject* SelectedNode)
     {
-        if ( const auto EdGraphNode = Cast<UDialogueEdGraphNode>(SelectedNode) )
+        if (const auto EdGraphNode = Cast<UDialogueEdGraphNode>(SelectedNode))
         {
-            for ( const UEdGraphPin* Pin : EdGraphNode->Pins )
+            for (const UEdGraphPin* Pin : EdGraphNode->Pins)
             {
-                if ( Pin->HasAnyConnections() )
+                if (Pin->HasAnyConnections())
                 {
                     return true;
                 }
@@ -647,17 +654,17 @@ void FDialogueGraphEditor::SetupGraphEditorEvents(UDialogueEdGraph* InGraph,
 void FDialogueGraphEditor::OnSelectedNodesChanged(const TSet<UObject*>& NewSelection) const
 {
     // 선택된 노드에 따라 속성 에디터 업데이트
-    if ( NewSelection.Num() == 1 )
+    if (NewSelection.Num() == 1)
     {
-        for ( UObject* SelectionObj : NewSelection )
+        for (UObject* SelectionObj : NewSelection)
         {
             check(SelectionObj->IsA<UDialogueEdGraphNode>())
-            if ( SelectionObj )
+            if (SelectionObj)
             {
                 PropertyEditor->SetObject(SelectionObj);
-                if ( auto DialogueLineNode = Cast<UDialogueEdGraphDialogueLineNode>(SelectionObj) )
+                if (auto DialogueLineNode = Cast<UDialogueEdGraphDialogueLineNode>(SelectionObj))
                 {
-                    if ( DialogueLineNode->DialogueCharacterAsset )
+                    if (DialogueLineNode->DialogueCharacterAsset)
                     {
                         SetSubtitleText(FString::Format(TEXT("{0} : {1}"),
                                                         {DialogueLineNode->DialogueCharacterAsset->Name, DialogueLineNode->DialogueLine}));
@@ -685,9 +692,9 @@ void FDialogueGraphEditor::RemoveSelectedNodesFrom(const TSharedPtr<SGraphEditor
 {
     UEdGraph* FocusedGraph = GraphEditor->GetCurrentGraph();
     TSet<UObject*> Objects = GraphEditor->GetSelectedNodes();
-    for ( UObject* SelectedNode : Objects )
+    for (UObject* SelectedNode : Objects)
     {
-        if ( SelectedNode->IsA<UDialogueEdGraphStartNode>() )
+        if (SelectedNode->IsA<UDialogueEdGraphStartNode>())
         {
             FNotificationInfo Info(LOCTEXT("CannotRemoveStartNode", "시작노드는 삭제할 수 없습니다."));
             Info.ExpireDuration = 2.0f;
@@ -704,7 +711,7 @@ void FDialogueGraphEditor::RemoveSelectedNodesFrom(const TSharedPtr<SGraphEditor
 TSet<UObject*> FDialogueGraphEditor::GetSelectedNodes() const
 {
     TSet<UObject*> SelectedNodes;
-    if ( const TSharedPtr<SGraphEditor> FocusedGraphEd = FocusedGraphEdPtr.Pin() )
+    if (const TSharedPtr<SGraphEditor> FocusedGraphEd = FocusedGraphEdPtr.Pin())
     {
         SelectedNodes = FocusedGraphEd->GetSelectedNodes();
     }
@@ -715,7 +722,7 @@ void FDialogueGraphEditor::CopySelectedNodes() const
 {
     // 선택된 노드를 텍스트로 내보내 클립보드에 복사합니다.
     const TSet<UObject*> SelectedNodes = GetSelectedNodes();
-    if ( SelectedNodes.IsEmpty() )
+    if (SelectedNodes.IsEmpty())
     {
         return;
     }
@@ -729,16 +736,16 @@ bool FDialogueGraphEditor::CanCopyNodes() const
 {
     // 복제 가능한 노드가 하나라도 선택되어 있으면 복사할 수 있습니다.
     const TSet<UObject*> SelectedNodes = GetSelectedNodes();
-    if ( SelectedNodes.IsEmpty() )
+    if (SelectedNodes.IsEmpty())
     {
         return false;
     }
 
-    for ( UObject* NodeObject : SelectedNodes )
+    for (UObject* NodeObject : SelectedNodes)
     {
-        if ( const UEdGraphNode* Node = Cast<UEdGraphNode>(NodeObject) )
+        if (const UEdGraphNode* Node = Cast<UEdGraphNode>(NodeObject))
         {
-            if ( Node->CanDuplicateNode() )
+            if (Node->CanDuplicateNode())
             {
                 return true;
             }
@@ -749,7 +756,7 @@ bool FDialogueGraphEditor::CanCopyNodes() const
 
 void FDialogueGraphEditor::PasteNodes() const
 {
-    if ( const TSharedPtr<SGraphEditor> FocusedGraphEd = FocusedGraphEdPtr.Pin() )
+    if (const TSharedPtr<SGraphEditor> FocusedGraphEd = FocusedGraphEdPtr.Pin())
     {
         const FVector2D PasteLocation = FocusedGraphEd->GetCurrentGraph()->GetGoodPlaceForNewNode();
         UEdGraph* EdGraph             = FocusedGraphEd->GetCurrentGraph();
@@ -766,7 +773,7 @@ void FDialogueGraphEditor::PasteNodes() const
         FEdGraphUtilities::ImportNodesFromText(EdGraph, ClipboardContent, PastedNodes);
 
         FVector2D AvgNodePosition(0.0f, 0.0f);
-        for ( UEdGraphNode* Node : PastedNodes )
+        for (UEdGraphNode* Node : PastedNodes)
         {
             // Node->AllocateDefaultPins();
 
@@ -775,13 +782,13 @@ void FDialogueGraphEditor::PasteNodes() const
             AvgNodePosition.Y += Node->NodePosY;
         }
 
-        if ( !PastedNodes.IsEmpty() )
+        if (!PastedNodes.IsEmpty())
         {
             AvgNodePosition /= static_cast<float>(PastedNodes.Num());
         }
 
         // 붙여넣은 노드를 지정된 위치로 이동시킵니다.
-        for ( UEdGraphNode* Node : PastedNodes )
+        for (UEdGraphNode* Node : PastedNodes)
         {
             Node->NodePosX = (Node->NodePosX - AvgNodePosition.X) + PasteLocation.X;
             Node->NodePosY = (Node->NodePosY - AvgNodePosition.Y) + PasteLocation.Y;
@@ -790,7 +797,7 @@ void FDialogueGraphEditor::PasteNodes() const
 
         // 붙여넣은 노드를 선택하고 그래프 뷰를 업데이트합니다.
         FocusedGraphEd->ClearSelectionSet();
-        for ( UEdGraphNode* Node : PastedNodes )
+        for (UEdGraphNode* Node : PastedNodes)
         {
             FocusedGraphEd->SetNodeSelection(Node, true);
         }
@@ -800,7 +807,7 @@ void FDialogueGraphEditor::PasteNodes() const
 
 bool FDialogueGraphEditor::CanPasteNodes() const
 {
-    if ( const TSharedPtr<SGraphEditor> FocusedGraphEd = FocusedGraphEdPtr.Pin() )
+    if (const TSharedPtr<SGraphEditor> FocusedGraphEd = FocusedGraphEdPtr.Pin())
     {
         FString ClipboardContent;
         FPlatformApplicationMisc::ClipboardPaste(ClipboardContent);
@@ -836,7 +843,7 @@ bool FDialogueGraphEditor::CanDuplicateNodes() const
 #pragma region 자막
 void FDialogueGraphEditor::SetSubtitleText(const FString& SubtitleText) const
 {
-    if ( Tb_CurrentLine.IsValid() )
+    if (Tb_CurrentLine.IsValid())
     {
         Tb_CurrentLine->SetText(FText::FromString(SubtitleText));
         ShowSubtitle();
@@ -845,9 +852,9 @@ void FDialogueGraphEditor::SetSubtitleText(const FString& SubtitleText) const
 
 void FDialogueGraphEditor::ShowSubtitle() const
 {
-    if ( CurrentLineOverlay
-         && Tb_CurrentLine.IsValid()
-         && !Tb_CurrentLine->GetText().IsEmpty() )
+    if (CurrentLineOverlay
+        && Tb_CurrentLine.IsValid()
+        && !Tb_CurrentLine->GetText().IsEmpty())
     {
         CurrentLineOverlay->GetWidget()->SetVisibility(EVisibility::Visible);
     }
@@ -855,7 +862,7 @@ void FDialogueGraphEditor::ShowSubtitle() const
 
 void FDialogueGraphEditor::HideSubtitle() const
 {
-    if ( CurrentLineOverlay )
+    if (CurrentLineOverlay)
     {
         CurrentLineOverlay->GetWidget()->SetVisibility(EVisibility::Hidden);
     }
@@ -882,10 +889,10 @@ void FDialogueGraphEditorUtils::OnBlueprintChanged(UBlueprint* Blueprint)
     const auto DialogueGraphAsset = Blueprint->GetTypedOuter<UDialogueGraph>();
     const auto GraphData          = Cast<UDialogueEdGraphAssetData>(DialogueGraphAsset->AssetUserData);
     const auto DialogueGraph      = GraphData->DialogueEdGraph;
-    for ( TObjectPtr EdGraphNode : DialogueGraph->Nodes )
+    for (TObjectPtr EdGraphNode : DialogueGraph->Nodes)
     {
         DialogueGraph->Modify();
-        if ( !EdGraphNode )
+        if (!EdGraphNode)
         {
             continue;
         }
@@ -893,16 +900,16 @@ void FDialogueGraphEditorUtils::OnBlueprintChanged(UBlueprint* Blueprint)
         // 각 함수 이름에 대해 업데이트를 수행한다.
         const auto Node = Cast<UDialogueEdGraphNode>(EdGraphNode.Get());
 
-        if ( const auto CanSelectThisItem = Cast<ICanSelectThisNode>(Node) )
+        if (const auto CanSelectThisItem = Cast<ICanSelectThisNode>(Node))
         {
-            if ( const auto FunctionName = CanSelectThisItem->GetCanSelectThisNodeFunctionName(); FunctionName != NAME_None )
+            if (const auto FunctionName = CanSelectThisItem->GetCanSelectThisNodeFunctionName(); FunctionName != NAME_None)
             {
                 const auto Found = Algo::FindByPredicate(GraphNames, [FunctionName = FunctionName.ToString()](const FString& GraphName)
                 {
                     return GraphName.Equals(FunctionName);
                 });
                 // 만약 선택한 경우 활성화 하는 메서드 이름이 위 리스트에 없는 경우
-                if ( !Found )
+                if (!Found)
                 {
                     // 이것을 Name_None으로 설정하여 실행하지 않도록 수정한다.
                     CanSelectThisItem->SetCanSelectThisNodeFunctionName(NAME_None);
@@ -910,16 +917,16 @@ void FDialogueGraphEditorUtils::OnBlueprintChanged(UBlueprint* Blueprint)
             }
         }
 
-        if ( const auto WhenSelectThisItem = Cast<IWhenSelectThisNode>(Node) )
+        if (const auto WhenSelectThisItem = Cast<IWhenSelectThisNode>(Node))
         {
-            if ( const auto FunctionName = WhenSelectThisItem->GetWhenSelectThisNodeFunctionName(); FunctionName != NAME_None )
+            if (const auto FunctionName = WhenSelectThisItem->GetWhenSelectThisNodeFunctionName(); FunctionName != NAME_None)
             {
                 const auto Found = Algo::FindByPredicate(GraphNames, [FunctionName = FunctionName.ToString()](const FString& GraphName)
                 {
                     return GraphName.Equals(FunctionName);
                 });
                 // 만약 선택한 경우 활성화 하는 메서드 이름이 위 리스트에 없는 경우
-                if ( !Found )
+                if (!Found)
                 {
                     // 이것을 Name_None으로 설정하여 실행하지 않도록 수정한다.
                     WhenSelectThisItem->SetWhenSelectThisNodeFunctionName(NAME_None);

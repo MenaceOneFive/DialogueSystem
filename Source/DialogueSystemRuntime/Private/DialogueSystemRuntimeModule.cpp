@@ -5,12 +5,12 @@
 
 void FDialogueSystemRuntimeModule::ShutdownModule()
 {
-	IModuleInterface::ShutdownModule();
+    IModuleInterface::ShutdownModule();
 }
 
 void FDialogueSystemRuntimeModule::StartupModule()
 {
-	IModuleInterface::StartupModule();
+    IModuleInterface::StartupModule();
 }
 
 IMPLEMENT_MODULE(FDialogueSystemRuntimeModule, DialogueSystemRuntime)

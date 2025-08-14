@@ -13,7 +13,7 @@ class DIALOGUESYSTEMRUNTIME_API UDialogueSceneNode : public UDialogueConditional
     GENERATED_BODY()
 
 public:
-    virtual void Accept(TObjectPtr<IRuntimeDialogueGraphVisitor> Visitor) const override;
+    virtual void Accept(TScriptInterface<IRuntimeDialogueGraphVisitor> Visitor) const override;
 
     /// <summary>
     /// 재생할 레벨 시퀀스를 반환합니다.

@@ -2,6 +2,7 @@
 #include "Graph/DialogueGraphPinConnectionPolicies.h"
 
 #include "Graph/Node/DialogueEdGraphNode.h"
+#include "Graph/Node/DialogueEdGraphSelectNode.h"
 
 FPinConnectionResponse FPinConnectionPolicy::ValidateConnection(const UEdGraphPin* A,
                                                                 const UEdGraphPin* B)

@@ -37,7 +37,7 @@ void UDialogueSelectionItem::InitializeForExecution(UDialogueGraphDirector* Dire
             VisitorInterface && NodeToVisit->IsValidLowLevel() )
         {
             check(NodeToVisit->IsValidLowLevel())
-            NodeToVisit->Accept(VisitorInterface);
+            NodeToVisit->Accept(Visitor);
         }
     });
 

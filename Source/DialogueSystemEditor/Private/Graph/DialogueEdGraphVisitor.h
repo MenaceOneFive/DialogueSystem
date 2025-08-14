@@ -7,6 +7,7 @@ class UDialogueEdGraphDialogueLineNode;
 class UDialogueEdGraphSelectNode;
 class UDialogueEdGraphEndNode;
 class UDialogueEdGraphStartNode;
+class UDialogueEdGraphKnotNode;
 
 class FAbstractDialogueEdGraphVisitor
 {
@@ -41,8 +42,12 @@ public:
 
     virtual void VisitSceneNode(UDialogueEdGraphSceneNode* SceneNode) override;
 
+    TArray<FGuid> GetPrevNodeGuids(const TArray<TObjectPtr<const UDialogueEdGraphNode>>& EdGraphNodes);
+    FGuid GetNextNodeGuid(const TObjectPtr<const UDialogueEdGraphNode>& EdGraphNode);
+
 private:
     TMap<UDialogueEdGraphNode*, UDialogueGraphNode*> EditorToRuntime;
+    FGuid InvalidGuid = FGuid();
 };
 
 /// <summary>

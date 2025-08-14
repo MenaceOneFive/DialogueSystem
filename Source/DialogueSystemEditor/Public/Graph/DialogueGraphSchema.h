@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include "DialogueGraphPinConnectionPolicies.h"
+#include "Node/DialogueEdGraphNode.h"
 #include "DialogueGraphSchema.generated.h"
 
-class UDialogueEdGraphNode;
 
 class FDialogueGraphSchema_SpawnNode final : public FEdGraphSchemaAction
 {
@@ -55,6 +55,7 @@ public: // SchemaContextMenuActions 마우스 우클릭시 호출되는 ContextA
     /// <param name="Context"></param>
     virtual void GetContextMenuActions(UToolMenu* Menu,
                                        UGraphNodeContextMenuContext* Context) const override;
+    virtual void OnPinConnectionDoubleCicked(UEdGraphPin* PinA, UEdGraphPin* PinB, const FVector2f& GraphPosition) const override;
 
     // PinConnection 핀 연결 가능성 확인, 핀 그리기
     /// <summary>

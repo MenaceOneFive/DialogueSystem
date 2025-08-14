@@ -3,13 +3,14 @@
 #pragma once
 
 #include "IDetailCustomization.h"
-#include "Graph/Node/DialogueEdGraphNode.h"
 #include "Graph/DialogueGraphAssetFactory.h"
+#include "Graph/Node/DialogueEdGraphNode.h"
 #include "Graph/Slate/DialogueNodeDetail.h"
 #include "OpenAI/ChatHistory_OpenAI.h"
 
 #define LOCTEXT_NAMESPACE "DialogueLineDetails"
 
+class UDialogueEdGraphDialogueLineNode;
 class FOpenAIChatSession;
 class FChatSessionBase;
 class FGeminiChatSession;

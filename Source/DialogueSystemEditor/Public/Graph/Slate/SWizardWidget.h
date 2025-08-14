@@ -44,7 +44,7 @@ private:
 
     TSharedPtr<SWidgetSwitcher> WizardStepSwitcher;
     TSharedPtr<STextBlock> StepIndicator;
-    
+
     // 버튼에 대한 참조
     TSharedPtr<SButton> PrevButton;
     TSharedPtr<SButton> NextButton;
@@ -55,6 +55,6 @@ private:
 
     // 마법사의 각 단계
     TArray<FWizardStepTuple> WidgetToAdd;
-    
+
     void UpdateStepIndicatorText() const;
 };

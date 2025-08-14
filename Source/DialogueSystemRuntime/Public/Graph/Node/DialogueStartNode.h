@@ -9,7 +9,7 @@ class DIALOGUESYSTEMRUNTIME_API UDialogueStartNode : public UDialogueGraphNode
     GENERATED_BODY()
 
 public:
-    virtual void Accept(TObjectPtr<IRuntimeDialogueGraphVisitor> Visitor) const override;
+    virtual void Accept(TScriptInterface<IRuntimeDialogueGraphVisitor> Visitor) const override;
 
     /// <summary>
     /// 다음 노드의 ID를 반환합니다.

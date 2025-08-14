@@ -2,7 +2,7 @@
 #include "MovieSceneSequence.h"
 #include "Graph/DialogueGraphVisitor.h"
 
-void UDialogueSceneNode::Accept(TObjectPtr<IRuntimeDialogueGraphVisitor> Visitor) const
+void UDialogueSceneNode::Accept(TScriptInterface<IRuntimeDialogueGraphVisitor> Visitor) const
 {
     Visitor->VisitSceneNode(this);
 }

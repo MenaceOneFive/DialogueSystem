@@ -5,8 +5,11 @@
 
 #include "Graph/Node/DialogueGraphNode.h"
 
+
+#if WITH_EDITOR
 FName UDialogueGraphDirector::CanSelectThisNodeSignatureName  = "CanSelectThisNodeSignature";
 FName UDialogueGraphDirector::WhenSelectThisNodeSignatureName = "WhenSelectThisNodeSignature";
+#endif
 
 bool UDialogueGraphDirector::CanVisitNode(const TObjectPtr<UFunction>& Function,
                                           const TObjectPtr<const UDialogueGraphNode>& NextNodeToVisit)

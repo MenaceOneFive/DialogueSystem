@@ -3,7 +3,13 @@
 
 #include "Graph/DialogueGraphPanelNodeFactory.h"
 
+#include "SGraphNodeKnot.h"
+#include "Graph/Node/DialogueEdGraphDialogueLineNode.h"
+#include "Graph/Node/DialogueEdGraphEndNode.h"
+#include "Graph/Node/DialogueEdGraphKnotNode.h"
 #include "Graph/Node/DialogueEdGraphNode.h"
+#include "Graph/Node/DialogueEdGraphSelectNode.h"
+#include "Graph/Node/DialogueEdGraphStartNode.h"
 #include "Graph/Slate/Node/SDialogueEdGraphEndNode.h"
 #include "Graph/Slate/Node/SDialogueEdGraphLineNode.h"
 #include "Graph/Slate/Node/SDialogueEdGraphSceneNode.h"
@@ -25,25 +31,29 @@ TSharedPtr<SGraphNode> FDialogueGraphPanelNodeFactory::CreateNode(UEdGraphNode* 
     /// Node의 타입을 체크하여 적절한 노드를 생성해주는 방식이다. 따라서 아래와 같은 Assert를 사용하지 않는 것이 맞다.
     /// check(Node->IsA(UDialogueEdGraphNode::StaticClass()))
 
-    if ( Node->IsA(UDialogueEdGraphStartNode::StaticClass()) )
+    if (Node->IsA<UDialogueEdGraphStartNode>())
     {
         return SNew(SDialogueEdGraphStartNode, Node);
     }
-    if ( Node->IsA(UDialogueEdGraphEndNode::StaticClass()) )
+    if (Node->IsA<UDialogueEdGraphEndNode>())
     {
         return SNew(SDialogueEdGraphEndNode, Node);
     }
-    if ( Node->IsA(UDialogueEdGraphDialogueLineNode::StaticClass()) )
+    if (Node->IsA<UDialogueEdGraphDialogueLineNode>())
     {
         return SNew(SDialogueEdGraphLineNode, Node);
     }
-    if ( Node->IsA(UDialogueEdGraphSceneNode::StaticClass()) )
+    if (Node->IsA<UDialogueEdGraphSceneNode>())
     {
         return SNew(SDialogueEdGraphSceneNode, Node);
     }
-    if ( Node->IsA(UDialogueEdGraphSelectNode::StaticClass()) )
+    if (Node->IsA<UDialogueEdGraphSelectNode>())
     {
         return SNew(SDialogueEdGraphSelectNode, Node);
+    }
+    if (Node->IsA<UDialogueEdGraphKnotNode>())
+    {
+        return SNew(SGraphNodeKnot, Node);
     }
     return nullptr;
 }

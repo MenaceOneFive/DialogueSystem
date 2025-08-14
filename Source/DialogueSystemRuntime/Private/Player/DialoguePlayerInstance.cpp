@@ -460,7 +460,8 @@ void UDialogueRuntimePlayer::HideSubtitle() const
         return;
     }
 
-    const auto UIComponent = Cast<UDialogueUIComponent>(Component);
-    check(UIComponent)
-    UIComponent->HideSubtitle();
+    if ( const auto UIComponent = Cast<UDialogueUIComponent>(Component) )
+    {
+        UIComponent->HideSubtitle();
+    }
 }

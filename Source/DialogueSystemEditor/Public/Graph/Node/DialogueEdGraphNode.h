@@ -25,7 +25,7 @@ class DIALOGUESYSTEMEDITOR_API UDialogueEdGraphNode : public UEdGraphNode,
 public:
     static const FName PC_Flow;
     static const FName PC_Exec;
-
+    static const FName PC_Wildcard;
 #pragma endregion
 
 public:

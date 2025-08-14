@@ -2,7 +2,7 @@
 #include "Graph/DialogueGraphVisitor.h"
 #include "Graph/Node/DialogueSelectionItem.h"
 
-void UDialogueSelectionNode::Accept(TObjectPtr<IRuntimeDialogueGraphVisitor> Visitor) const
+void UDialogueSelectionNode::Accept(TScriptInterface<IRuntimeDialogueGraphVisitor> Visitor) const
 {
     Visitor->VisitSelectionNode(this);
 }

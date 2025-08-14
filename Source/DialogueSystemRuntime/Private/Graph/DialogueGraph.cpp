@@ -3,8 +3,6 @@
 #include "Graph/Node/DialogueGraphNode.h"
 #include "Graph/Node/DialogueStartNode.h"
 
-#if WITH_EDITORONLY_DATA
-
 TObjectPtr<UBlueprint> UDialogueGraph::GetBlueprintInstance() const
 {
     return BlueprintInstance;
@@ -15,6 +13,12 @@ TObjectPtr<UClass> UDialogueGraph::GetBlueprintClass() const
     return BlueprintClass;
 }
 
+FString UDialogueGraph::GetDirectorBlueprintName() const
+{
+    return GetFName().ToString() + "_DirectorBP";
+}
+
+#if WITH_EDITOR
 void UDialogueGraph::SetBlueprintInstance(UBlueprint* InBlueprintInstance)
 {
     if ( InBlueprintInstance )
@@ -27,7 +31,9 @@ void UDialogueGraph::SetBlueprintInstance(UBlueprint* InBlueprintInstance)
         BlueprintClass = nullptr;
     }
 }
+#endif
 
+#if WITH_EDITORONLY_DATA
 FString UDialogueGraph::GetDescription() const
 {
     return Description;
@@ -44,10 +50,6 @@ void UDialogueGraph::OnDirectorRecompiled(TObjectPtr<UBlueprint> InBlueprint)
     BlueprintClass = InBlueprint->GeneratedClass.Get();
 }
 
-FString UDialogueGraph::GetDirectorBlueprintName() const
-{
-    return GetFName().ToString() + "_DirectorBP";
-}
 #endif
 void UDialogueGraph::BeginDestroy()
 {
@@ -55,15 +57,6 @@ void UDialogueGraph::BeginDestroy()
     Super::BeginDestroy();
 }
 
-bool UDialogueGraph::AddNode(UDialogueGraphNode* GraphNode)
-{
-    if ( ContainsNode(GraphNode) )
-    {
-        return false;
-    }
-    Nodes.Add(GraphNode->GetNodeID(), GraphNode);
-    return true;
-}
 
 UDialogueGraphNode* UDialogueGraph::GetNode(const FGuid NodeID)
 {
@@ -77,6 +70,16 @@ UDialogueGraphNode* UDialogueGraph::GetNode(const FGuid NodeID)
 UDialogueStartNode* UDialogueGraph::GetStartNode() const
 {
     return StartNode;
+}
+#if WITH_EDITOR
+bool UDialogueGraph::AddNode(UDialogueGraphNode* GraphNode)
+{
+    if ( ContainsNode(GraphNode) )
+    {
+        return false;
+    }
+    Nodes.Add(GraphNode->GetNodeID(), GraphNode);
+    return true;
 }
 
 void UDialogueGraph::SetStartNode(TObjectPtr<UDialogueStartNode> InStartNode)
@@ -97,6 +100,7 @@ void UDialogueGraph::Clear()
         StartNode = nullptr;
     }
 }
+#endif
 
 TArray<TObjectPtr<const UDialogueGraphNode>> UDialogueGraph::GetNodes() const
 {

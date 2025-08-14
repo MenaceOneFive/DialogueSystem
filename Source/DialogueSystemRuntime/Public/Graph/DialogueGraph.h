@@ -21,7 +21,10 @@ public: // Getter
     TObjectPtr<UBlueprint> GetBlueprintInstance() const;
     TObjectPtr<UClass> GetBlueprintClass() const;
     FString GetDirectorBlueprintName() const;
+
+#if WITH_EDITOR
     void SetBlueprintInstance(UBlueprint* InBlueprintInstance);
+#endif
 
 #if WITH_EDITOR
 
@@ -107,10 +110,12 @@ protected:
 #endif
 
 private:
-    UPROPERTY()
+    // DirectorBlueprint의 런타임 인스턴스
+    UPROPERTY() 
     TObjectPtr<UBlueprint> BlueprintInstance;
 
-    UPROPERTY()
+    // DirectorBlueprint의 정의
+    UPROPERTY() 
     TObjectPtr<UClass> BlueprintClass;
 
     UPROPERTY(VisibleAnywhere)

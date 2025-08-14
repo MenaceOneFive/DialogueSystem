@@ -9,7 +9,7 @@ class DIALOGUESYSTEMRUNTIME_API UDialogueEventNode : public UDialogueConditional
     GENERATED_BODY()
 
 public:
-    virtual void Accept(TObjectPtr<IRuntimeDialogueGraphVisitor> Visitor) const override;
+    virtual void Accept(TScriptInterface<IRuntimeDialogueGraphVisitor> Visitor) const override;
 
     /// <summary>
     /// 이전 노드들의 ID 배열을 반환합니다.

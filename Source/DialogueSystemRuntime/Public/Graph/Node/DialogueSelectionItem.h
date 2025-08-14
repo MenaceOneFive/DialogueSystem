@@ -1,7 +1,7 @@
 #pragma once
 
-#include "UObject/Object.h"
 #include "Graph/Node/DialogueNodeInterface.h"
+#include "UObject/Object.h"
 #include "DialogueSelectionItem.generated.h"
 
 class UDialogueGraphDirector;

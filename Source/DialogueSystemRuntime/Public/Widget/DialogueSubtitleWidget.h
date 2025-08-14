@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Blueprint/UserWidget.h"
 #include "Components/SlateWrapperTypes.h"
 #include "UObject/Interface.h"
 #include "DialogueSubtitleWidget.generated.h"

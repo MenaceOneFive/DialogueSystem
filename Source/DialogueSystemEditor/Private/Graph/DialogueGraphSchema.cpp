@@ -7,6 +7,7 @@
 #include "Graph/DialogueGraphEditorCommands.h"
 #include "Graph/Node/DialogueEdGraphDialogueLineNode.h"
 #include "Graph/Node/DialogueEdGraphEndNode.h"
+#include "Graph/Node/DialogueEdGraphKnotNode.h"
 #include "Graph/Node/DialogueEdGraphNode.h"
 #include "Graph/Node/DialogueEdGraphSelectNode.h"
 
@@ -33,7 +34,7 @@ UEdGraphNode* FDialogueGraphSchema_SpawnNode::PerformAction(UEdGraph* ParentGrap
     NewNode->SetNodePosition(static_cast<int32>(Location.X),
                              static_cast<int32>(Location.Y));
     NewNode->AllocateDefaultPins();
-    if ( !FromPin ) // 핀을 드래그해서 호출한 경우가 아니라면 초기화는 이 정도로 완료하고 끝
+    if (!FromPin) // 핀을 드래그해서 호출한 경우가 아니라면 초기화는 이 정도로 완료하고 끝
     {
         ParentGraph->NotifyGraphChanged();
         return NewNode;
@@ -100,7 +101,7 @@ void UDialogueGraphSchema::GetContextMenuActions(UToolMenu* Menu,
     const FGenericCommands& GenericCommands = FGenericCommands::Get();
 
     // Node-specific actions
-    if ( Context->Node )
+    if (Context->Node)
     {
         FToolMenuSection& Section = Menu->FindOrAddSection(FName("NodeActions"));
         Section.AddMenuEntry(GenericCommands.Cut);
@@ -109,17 +110,17 @@ void UDialogueGraphSchema::GetContextMenuActions(UToolMenu* Menu,
 
         // Custom delete commands
         const FToolMenuEntry DeleteConnectionEntry = FToolMenuEntry::InitMenuEntry(
-                                                                                   FDialogueGraphEditorCommands::Get().DeleteAllNodeConnection,
-                                                                                   NSLOCTEXT("DialogueGraphEditor", "DeleteConnection", "Delete Connection"),
-                                                                                   NSLOCTEXT("DialogueGraphEditor", "DeleteConnectionTooltip", "Delete the selected connection between nodes")
-                                                                                  );
+                FDialogueGraphEditorCommands::Get().DeleteAllNodeConnection,
+                NSLOCTEXT("DialogueGraphEditor", "DeleteConnection", "Delete Connection"),
+                NSLOCTEXT("DialogueGraphEditor", "DeleteConnectionTooltip", "Delete the selected connection between nodes")
+                );
         Section.AddEntry(DeleteConnectionEntry);
 
         const FToolMenuEntry DeleteNodeEntry = FToolMenuEntry::InitMenuEntry(
-                                                                             FDialogueGraphEditorCommands::Get().DeleteSelectedNode,
-                                                                             NSLOCTEXT("DialogueGraphEditor", "DeleteNode", "Delete Node"),
-                                                                             NSLOCTEXT("DialogueGraphEditor", "DeleteNodeTooltip", "Delete the selected node")
-                                                                            );
+                FDialogueGraphEditorCommands::Get().DeleteSelectedNode,
+                NSLOCTEXT("DialogueGraphEditor", "DeleteNode", "Delete Node"),
+                NSLOCTEXT("DialogueGraphEditor", "DeleteNodeTooltip", "Delete the selected node")
+                );
         Section.AddEntry(DeleteNodeEntry);
     }
 
@@ -129,6 +130,38 @@ void UDialogueGraphSchema::GetContextMenuActions(UToolMenu* Menu,
         FToolMenuSection& Section = Menu->FindOrAddSection(FName("GraphActions"));
         Section.AddMenuEntry(GenericCommands.Paste);
     }
+}
+
+void UDialogueGraphSchema::OnPinConnectionDoubleCicked(UEdGraphPin* PinA, UEdGraphPin* PinB, const FVector2f& GraphPosition) const
+{
+    // Super::OnPinConnectionDoubleCicked(PinA, PinB, GraphPosition);
+    const FScopedTransaction Transaction(LOCTEXT("CreateRerouteNodeOnWire", "Create Reroute Node"));
+
+    //@TODO: This constant is duplicated from inside of SGraphNodeKnot
+    const FVector2f NodeSpacerSize(42.0f, 24.0f);
+    const FVector2f KnotTopLeft = GraphPosition - (NodeSpacerSize * 0.5f);
+
+    // Create a new knot
+    UEdGraph* ParentGraph = PinA->GetOwningNode()->GetGraph();
+    // UK2Node_Knot* NewKnot              = FEdGraphSchemaAction_K2NewNode::SpawnNode<UK2Node_Knot>(ParentGraph, FDeprecateSlateVector2D(KnotTopLeft), EK2NewNodeFlags::SelectNewNode);
+    UDialogueEdGraphKnotNode* KnotNode = NewObject<UDialogueEdGraphKnotNode>(ParentGraph);
+    KnotNode->SetPosition(KnotTopLeft);
+    KnotNode->AllocateDefaultPins();
+    ParentGraph->AddNode(KnotNode);
+
+    // Move the connections across (only notifying the knot, as the other two didn't really change)
+    PinA->BreakLinkTo(PinB);
+    PinA->MakeLinkTo((PinA->Direction == EGPD_Output) ? KnotNode->GetInputPin() : KnotNode->GetOutputPin());
+    PinB->MakeLinkTo((PinB->Direction == EGPD_Output) ? KnotNode->GetInputPin() : KnotNode->GetOutputPin());
+
+    for (UEdGraphNode* Node : ParentGraph->Nodes)
+    {
+        Node->NodeConnectionListChanged();
+    }
+    ParentGraph->NotifyGraphChanged();
+    // Dirty the blueprint
+    // UBlueprint* Blueprint = FBlueprintEditorUtils::FindBlueprintForGraphChecked(ParentGraph);
+    // FBlueprintEditorUtils::MarkBlueprintAsModified(Blueprint);
 }
 
 #pragma endregion
@@ -146,14 +179,14 @@ const FPinConnectionResponse UDialogueGraphSchema::CanCreateConnection(const UEd
     // TArray<TSharedPtr<FPinConnectionPolicy>> UDialogueGraphSchema::ConnectionPolicies
 
     FPinConnectionResponse ConnectionResponse(CONNECT_RESPONSE_MAKE, TEXT(""));
-    for ( TSharedPtr PinConnectionPolicy : ConnectionPolicies )
+    for (TSharedPtr PinConnectionPolicy : ConnectionPolicies)
     {
-        if ( PinConnectionPolicy.IsValid() )
+        if (PinConnectionPolicy.IsValid())
         {
-            if ( auto Response = PinConnectionPolicy->ValidateConnection(A, B);
-                Response.Response != CONNECT_RESPONSE_MAKE )
+            if (auto Response = PinConnectionPolicy->ValidateConnection(A, B);
+                Response.Response != CONNECT_RESPONSE_MAKE)
             {
-                if ( Response.Response == CONNECT_RESPONSE_DISALLOW )
+                if (Response.Response == CONNECT_RESPONSE_DISALLOW)
                 {
                     return Response;
                 }

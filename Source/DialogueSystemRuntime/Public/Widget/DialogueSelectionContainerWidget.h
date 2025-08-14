@@ -393,7 +393,8 @@ protected:
 
 
 UCLASS(Blueprintable)
-class DIALOGUESYSTEMRUNTIME_API UDialogueSelectionContainerWidgetImpl : public UUserWidget, public IDialogueSelectionContainerWidget
+class DIALOGUESYSTEMRUNTIME_API UDialogueSelectionContainerWidgetImpl : public UUserWidget,
+                                                                        public IDialogueSelectionContainerWidget
 {
     GENERATED_BODY()
 

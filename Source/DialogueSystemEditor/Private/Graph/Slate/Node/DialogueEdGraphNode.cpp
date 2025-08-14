@@ -6,6 +6,7 @@
 
 const FName UDialogueEdGraphNode::PC_Flow(TEXT("Flow"));
 const FName UDialogueEdGraphNode::PC_Exec(TEXT("Exec"));
+const FName UDialogueEdGraphNode::PC_Wildcard(TEXT("wildcard"));
 
 UDialogueEdGraphNode::UDialogueEdGraphNode()
 {
@@ -32,7 +33,7 @@ void UDialogueEdGraphNode::PostPlacedNewNode()
 
 void UDialogueEdGraphNode::AutowireNewNode(UEdGraphPin* FromPin)
 {
-    if ( !FromPin )
+    if (!FromPin)
     {
         return;
     }
@@ -40,7 +41,7 @@ void UDialogueEdGraphNode::AutowireNewNode(UEdGraphPin* FromPin)
     // 아다리가 맞는 같은 타입의 핀을 찾아서 연결을 수행한다.
     // 코드가 중복되는 부분이 있지만 분리하면 더 복잡해서 이렇게 작성했다.
     TArray<UEdGraphPin*> EdGraphPins = GetAllPins();
-    if ( FromPin->Direction == EGPD_Input )
+    if (FromPin->Direction == EGPD_Input)
     {
         UEdGraphPin** PinToConnect = EdGraphPins.FindByPredicate([FromPin](const UEdGraphPin* Pin)
         {
@@ -48,13 +49,13 @@ void UDialogueEdGraphNode::AutowireNewNode(UEdGraphPin* FromPin)
             return Pin->Direction == EGPD_Output &&
                    Pin->PinType == FromPin->PinType;
         });
-        if ( PinToConnect )
+        if (PinToConnect)
         {
             const bool bConnectionResult = GetSchema()->TryCreateConnection(FromPin, *PinToConnect);
             checkf(bConnectionResult, TEXT("연결이 성립될 수 없습니다."));
         }
     }
-    else if ( FromPin->Direction == EGPD_Output )
+    else if (FromPin->Direction == EGPD_Output)
     {
         UEdGraphPin** PinToConnect = EdGraphPins.FindByPredicate([FromPin](const UEdGraphPin* Pin)
         {
@@ -62,7 +63,7 @@ void UDialogueEdGraphNode::AutowireNewNode(UEdGraphPin* FromPin)
             return Pin->Direction == EGPD_Input &&
                    Pin->PinType == FromPin->PinType;
         });
-        if ( PinToConnect )
+        if (PinToConnect)
         {
             const bool bConnectionResult = GetSchema()->TryCreateConnection(FromPin, *PinToConnect);
             checkf(bConnectionResult, TEXT("연결이 성립될 수 없습니다."));

@@ -10,6 +10,6 @@
 class DIALOGUESYSTEMRUNTIME_API FDialogueSystemRuntimeModule : public IModuleInterface
 {
 public:
-	virtual void ShutdownModule() override;
-	virtual void StartupModule() override;
+    virtual void ShutdownModule() override;
+    virtual void StartupModule() override;
 };
