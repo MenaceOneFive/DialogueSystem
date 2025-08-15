@@ -1,6 +1,5 @@
 #include "Graph/DialogueGraphEditor.h"
 
-#include "DialogueEdGraphVisitor.h"
 #include "DialogueGraphBlueprintExtension.h"
 #include "EdGraphNode_Comment.h"
 #include "EdGraphUtilities.h"
@@ -33,6 +32,9 @@
 #include "Graph/Slate/PropertyEditor/DialogueSelectionNodeDetail.h"
 #include "HAL/PlatformApplicationMisc.h"
 #include "Modules/ModuleManager.h"
+#include "Visitor/DialogueEdGraphConnector.h"
+#include "Visitor/DialogueEdGraphLogger.h"
+#include "Visitor/DialogueEdGraphNodeCreator.h"
 #include "Widgets/Docking/SDockTab.h"
 #include "Widgets/Notifications/SNotificationList.h"
 
@@ -505,69 +507,45 @@ void FDialogueGraphEditor::GenerateRuntimeGraph() const
 {
     const auto GraphData          = Cast<UDialogueEdGraphAssetData>(DialogueGraphAsset->AssetUserData);
     UDialogueEdGraph* EditorGraph = GraphData->DialogueEdGraph;
-    auto DialogueGraph            = DialogueGraphAsset;
+    UDialogueGraph* DialogueGraph = DialogueGraphAsset;
 
+    // 기존의 런타임 노드들을 제거한다.
     DialogueGraph->Clear();
 
     TMap<UDialogueEdGraphNode*, UDialogueGraphNode*> EditorToRuntime;
 
+    const TUniquePtr<FAbstractDialogueEdGraphVisitor> Creator =
+            MakeUnique<FDialogueEdGraphNodeCreator>(DialogueGraph, &EditorToRuntime);
+
+    const TUniquePtr<FAbstractDialogueEdGraphVisitor> Connector =
+            MakeUnique<FDialogueEdGraphConnector>(&EditorToRuntime);
+
+    const TUniquePtr<FAbstractDialogueEdGraphVisitor> Logger =
+            MakeUnique<FDialogueEdGraphLogger>(&EditorToRuntime);
+
     // 노드 유형별로 초기화한 뒤 EditorToRuntime에 저장
     for (const TObjectPtr EdGraphNode : EditorGraph->Nodes)
     {
-        UDialogueGraphNode* RuntimeNode = nullptr;
-
-        // 시작 노드인 경우
-        if (EdGraphNode->IsA<UDialogueEdGraphStartNode>())
+        // 생략해야 하는 노드 유형은 여기을 여기에 추가
+        if (EdGraphNode->IsA<UDialogueEdGraphKnotNode>() // 노트 노드인 경우
+            || EdGraphNode->IsA<UEdGraphNode_Comment>()  // 주석 노드인 경우
+        )
         {
-            RuntimeNode = NewObject<UDialogueStartNode>(DialogueGraph);
-            DialogueGraph->SetStartNode(Cast<UDialogueStartNode>(RuntimeNode));
-        }
-
-        // 종료 노드인 경우
-        if (EdGraphNode->IsA<UDialogueEdGraphEndNode>())
-        {
-            RuntimeNode = NewObject<UDialogueEndNode>(DialogueGraph);
-        }
-
-        // 대사 노드인 경우
-        if (EdGraphNode->IsA<UDialogueEdGraphDialogueLineNode>())
-        {
-            RuntimeNode = NewObject<UDialogueSceneNode>(DialogueGraph);
-        }
-
-        // 선택 노드인 경우
-        if (EdGraphNode->IsA<UDialogueEdGraphSelectNode>())
-        {
-            RuntimeNode = NewObject<UDialogueSelectionNode>(DialogueGraph);
-        }
-
-        // 노트 노드인 경우
-        if (EdGraphNode->IsA<UDialogueEdGraphKnotNode>())
-        {
+            // 별도의 작업을 수행하지 않는다.
             continue;
         }
 
-        // 주석 노드인 경우
-        if (EdGraphNode->IsA<UEdGraphNode_Comment>())
+        if (const auto DialogueEdGraphNode = Cast<UDialogueEdGraphNode>(EdGraphNode))
         {
-            continue;
+            DialogueEdGraphNode->Accept(Creator.Get());
+
+            // 시작 노드인 경우 에셋 그래프의 시작점으로 지정해야 한다.
+            if (DialogueEdGraphNode->IsA<UDialogueEdGraphStartNode>())
+            {
+                DialogueGraph->SetStartNode(Cast<UDialogueStartNode>(EditorToRuntime[DialogueEdGraphNode]));
+            }
         }
-
-        if (RuntimeNode == nullptr)
-        {
-            UE_LOG(LogTemp, Warning, TEXT("비정상적인 Node타입이 있습니다."))
-        }
-
-        // 에디터용 GUID를 런타임에서도 사용함 -> 수정 필요
-        RuntimeNode->SetNodeID(EdGraphNode->NodeGuid);
-
-        EditorToRuntime.Emplace(EdGraphNode, RuntimeNode);
-
-        DialogueGraph->AddNode(RuntimeNode);
     }
-
-    const TUniquePtr<FAbstractDialogueEdGraphVisitor> Connector =
-            MakeUnique<FDialogueEdGraphConnector>(EditorToRuntime);
 
     // 개별 노드를 순회하면서 연결 정보 갱신
     for (const TObjectPtr EdGraphNode : EditorGraph->Nodes)
@@ -579,9 +557,7 @@ void FDialogueGraphEditor::GenerateRuntimeGraph() const
         }
     }
 
-    const TUniquePtr<FAbstractDialogueEdGraphVisitor> Logger =
-            MakeUnique<FDialogueEdGraphLogger>(EditorToRuntime);
-
+    // 연결 관계를 UE_LOG로 출력합니다.
     for (const TObjectPtr EdGraphNode : EditorGraph->Nodes)
     {
         if (const auto DialogueEdGraphNode = Cast<UDialogueEdGraphNode>(EdGraphNode);

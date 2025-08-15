@@ -1,7 +1,7 @@
 #include "Graph/Node/DialogueEdGraphDialogueLineNode.h"
 #include "Character/DialogueCharacterAsset.h"
 #include "EdGraph/EdGraph.h"
-#include "Graph/DialogueEdGraphVisitor.h"
+#include "Visitor/AbstractDialogueEdGraphVisitor.h"
 
 FText UDialogueEdGraphDialogueLineNode::GetNodeTitle(ENodeTitleType::Type TitleType) const
 {

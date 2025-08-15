@@ -11,11 +11,17 @@ class FDialogueGraphPanelNodeFactory;
 class FDialogueGraphEditor;
 class FAssetTypeActions_DialogueGraph;
 
+DECLARE_DELEGATE_RetVal_OneParam(TSharedRef<SGraphNode>, FOnMakeWidgetForGraphNode, UEdGraphNode*)
+
 class DIALOGUESYSTEMEDITOR_API FDialogueSystemEditorModule final : public IModuleInterface
 {
 public:
     virtual void StartupModule() override;
     virtual void ShutdownModule() override;
+
+    void RegisterGraphNodeCreationDelegate(UClass* NodeType, FOnMakeWidgetForGraphNode Delegate);
+
+    FOnMakeWidgetForGraphNode GetWidgetCreationDelegate(const UClass* NodeType);
 
 private:
     // 시퀀서 통합을 위한 델리게이트 핸들
@@ -29,4 +35,9 @@ private:
 
     TSharedPtr<FAssetTypeActions_DialogueGraph> GraphAssetTypeActions;
     TSharedPtr<FAssetTypeActions_DialogueCharacter> CharacterAssetTypeActions;
+
+
+    TMap<UClass*, FOnMakeWidgetForGraphNode> EditorGraphToWidgetDelegate;
+
+    void RegisterDefaultNodeWidgetCreationDelegates();
 };

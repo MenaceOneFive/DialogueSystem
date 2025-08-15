@@ -1,6 +1,6 @@
 #include "Graph/Node/DialogueEdGraphStartNode.h"
 #include "EdGraph/EdGraph.h"
-#include "Graph/DialogueEdGraphVisitor.h"
+#include "Visitor/AbstractDialogueEdGraphVisitor.h"
 
 FText UDialogueEdGraphStartNode::GetNodeTitle(const ENodeTitleType::Type TitleType) const
 {

@@ -1,6 +1,6 @@
 #include "Graph/Node/DialogueEdGraphSelectNode.h"
 #include "EdGraph/EdGraph.h"
-#include "Graph/DialogueEdGraphVisitor.h"
+#include "Visitor/AbstractDialogueEdGraphVisitor.h"
 
 #define LOCTEXT_NAMESPACE "FDialogueGraphEditor"
 

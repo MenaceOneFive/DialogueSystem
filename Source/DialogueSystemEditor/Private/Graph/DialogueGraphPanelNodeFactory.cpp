@@ -3,6 +3,7 @@
 
 #include "Graph/DialogueGraphPanelNodeFactory.h"
 
+#include "DialogueSystemEditorModule.h"
 #include "EdGraphNode_Comment.h"
 #include "SGraphNodeComment.h"
 #include "SGraphNodeKnot.h"
@@ -18,8 +19,9 @@
 #include "Graph/Slate/Node/SDialogueEdGraphStartNode.h"
 
 
-FDialogueGraphPanelNodeFactory::FDialogueGraphPanelNodeFactory()
+FDialogueGraphPanelNodeFactory::FDialogueGraphPanelNodeFactory(): Module(nullptr)
 {
+    Module = &FModuleManager::GetModuleChecked<FDialogueSystemEditorModule>("DialogueSystemEditor");
 }
 
 FDialogueGraphPanelNodeFactory::~FDialogueGraphPanelNodeFactory()
@@ -32,33 +34,17 @@ TSharedPtr<SGraphNode> FDialogueGraphPanelNodeFactory::CreateNode(UEdGraphNode* 
     /// Node의 타입을 체크하여 적절한 노드를 생성해주는 방식이다. 따라서 아래와 같은 Assert를 사용하지 않는 것이 맞다.
     /// check(Node->IsA(UDialogueEdGraphNode::StaticClass()))
 
-    if (Node->IsA<UDialogueEdGraphStartNode>())
+    // Nullptr를 반환할 수 있습니다.
+    TSharedPtr<SGraphNode> GraphNodeWidget = nullptr;
+
+    // 에디터 노드의 클래스 정보를 이용해서 위젯 생성 델리게이트가 있는지 확인합니다.
+    const UClass* NodeType = Node->GetClass();
+    if (const FOnMakeWidgetForGraphNode Delegate = Module->GetWidgetCreationDelegate(NodeType);
+        Delegate.IsBound())
     {
-        return SNew(SDialogueEdGraphStartNode, Node);
+        // 있으면 위젯을 만들어서 반환합니다.
+        GraphNodeWidget = Delegate.Execute(Node);
     }
-    if (Node->IsA<UDialogueEdGraphEndNode>())
-    {
-        return SNew(SDialogueEdGraphEndNode, Node);
-    }
-    if (Node->IsA<UDialogueEdGraphDialogueLineNode>())
-    {
-        return SNew(SDialogueEdGraphLineNode, Node);
-    }
-    if (Node->IsA<UDialogueEdGraphSceneNode>())
-    {
-        return SNew(SDialogueEdGraphSceneNode, Node);
-    }
-    if (Node->IsA<UDialogueEdGraphSelectNode>())
-    {
-        return SNew(SDialogueEdGraphSelectNode, Node);
-    }
-    if (Node->IsA<UDialogueEdGraphKnotNode>())
-    {
-        return SNew(SGraphNodeKnot, Node);
-    }
-    if (Node->IsA<UEdGraphNode_Comment>())
-    {
-        return SNew(SGraphNodeComment, Cast<UEdGraphNode_Comment>(Node));
-    }
-    return nullptr;
+
+    return GraphNodeWidget;
 }

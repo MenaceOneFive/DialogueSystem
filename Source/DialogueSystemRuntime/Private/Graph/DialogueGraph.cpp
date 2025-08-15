@@ -21,7 +21,7 @@ FString UDialogueGraph::GetDirectorBlueprintName() const
 #if WITH_EDITOR
 void UDialogueGraph::SetBlueprintInstance(UBlueprint* InBlueprintInstance)
 {
-    if ( InBlueprintInstance )
+    if (InBlueprintInstance)
     {
         BlueprintClass    = InBlueprintInstance->GeneratedClass.Get();
         BlueprintInstance = InBlueprintInstance;
@@ -60,7 +60,7 @@ void UDialogueGraph::BeginDestroy()
 
 UDialogueGraphNode* UDialogueGraph::GetNode(const FGuid NodeID)
 {
-    if ( !Nodes.Contains(NodeID) )
+    if (!Nodes.Contains(NodeID))
     {
         return nullptr;
     }
@@ -74,7 +74,7 @@ UDialogueStartNode* UDialogueGraph::GetStartNode() const
 #if WITH_EDITOR
 bool UDialogueGraph::AddNode(UDialogueGraphNode* GraphNode)
 {
-    if ( ContainsNode(GraphNode) )
+    if (ContainsNode(GraphNode))
     {
         return false;
     }
@@ -89,14 +89,14 @@ void UDialogueGraph::SetStartNode(TObjectPtr<UDialogueStartNode> InStartNode)
 
 void UDialogueGraph::Clear()
 {
-    for ( const auto Pair : Nodes )
+    for (const auto Pair : Nodes)
     {
-        Pair.Value->Rename();
+        Pair.Value->Rename(nullptr, nullptr);
     }
     Nodes.Empty();
-    if ( StartNode )
+    if (StartNode)
     {
-        StartNode->Rename();
+        StartNode->Rename(nullptr, nullptr);
         StartNode = nullptr;
     }
 }
@@ -116,7 +116,7 @@ bool UDialogueGraph::ContainsNode(const UDialogueGraphNode* GraphNode) const
 
 TObjectPtr<const UDialogueGraphNode> UDialogueGraph::GetNode(const FGuid NodeID) const
 {
-    if ( !Nodes.Contains(NodeID) )
+    if (!Nodes.Contains(NodeID))
     {
         return nullptr;
     }

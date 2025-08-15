@@ -1,8 +1,22 @@
 #include "DialogueSystemEditorModule.h"
 
+#include "EdGraphNode_Comment.h"
+#include "SGraphNodeComment.h"
+#include "SGraphNodeKnot.h"
 #include "Graph/DialogueGraphAssetFactory.h"
 #include "Graph/DialogueGraphEditorCommands.h"
 #include "Graph/DialogueGraphPanelNodeFactory.h"
+#include "Graph/Node/DialogueEdGraphDialogueLineNode.h"
+#include "Graph/Node/DialogueEdGraphEndNode.h"
+#include "Graph/Node/DialogueEdGraphKnotNode.h"
+#include "Graph/Node/DialogueEdGraphSceneNode.h"
+#include "Graph/Node/DialogueEdGraphSelectNode.h"
+#include "Graph/Node/DialogueEdGraphStartNode.h"
+#include "Graph/Slate/Node/SDialogueEdGraphEndNode.h"
+#include "Graph/Slate/Node/SDialogueEdGraphLineNode.h"
+#include "Graph/Slate/Node/SDialogueEdGraphSceneNode.h"
+#include "Graph/Slate/Node/SDialogueEdGraphSelectNode.h"
+#include "Graph/Slate/Node/SDialogueEdGraphStartNode.h"
 #include "MovieScene/TrackEditor/DialogueLineTrackEditor.h"
 
 void FDialogueSystemEditorModule::StartupModule()
@@ -35,11 +49,14 @@ void FDialogueSystemEditorModule::StartupModule()
     {
         UThumbnailManager::Get().RegisterCustomRenderer(UDialogueCharacterAsset::StaticClass(), UDialogueCharacterThumbnailRenderer::StaticClass());
     }
+    // 기본 델리게이트 등록
+    EditorGraphToWidgetDelegate = TMap<UClass*, FOnMakeWidgetForGraphNode>();
+    RegisterDefaultNodeWidgetCreationDelegates();
 }
 
 void FDialogueSystemEditorModule::ShutdownModule()
 {
-    if ( FModuleManager::Get().IsModuleLoaded("Sequencer") )
+    if (FModuleManager::Get().IsModuleLoaded("Sequencer"))
     {
         ISequencerModule& SequencerModule = FModuleManager::LoadModuleChecked<ISequencerModule>("Sequencer");
         SequencerModule.UnRegisterTrackEditor(DialogueLineTrackEditorDelegateHandle);
@@ -47,14 +64,14 @@ void FDialogueSystemEditorModule::ShutdownModule()
         SequencerModule.UnRegisterTrackEditor(StoryTrackEditorDelegateHandle);
         SequencerModule.UnRegisterTrackEditor(PlayerControlTrackEditorDelegateHandle);
     }
-    if ( FModuleManager::Get().IsModuleLoaded("AssetTools") )
+    if (FModuleManager::Get().IsModuleLoaded("AssetTools"))
     {
         IAssetTools& AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
         AssetTools.UnregisterAssetTypeActions(GraphAssetTypeActions.ToSharedRef());
         AssetTools.UnregisterAssetTypeActions(CharacterAssetTypeActions.ToSharedRef());
     }
 
-    if ( FModuleManager::Get().IsModuleLoaded("PropertyEditor") )
+    if (FModuleManager::Get().IsModuleLoaded("PropertyEditor"))
     {
         FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
         PropertyModule.UnregisterCustomPropertyTypeLayout(FName("FDialogueLineCreationPrompt"));
@@ -66,12 +83,58 @@ void FDialogueSystemEditorModule::ShutdownModule()
     }
 
     // 썸네일 등록 해제
-    if ( FModuleManager::Get().IsModuleLoaded("ThumbnailManager") )
+    if (FModuleManager::Get().IsModuleLoaded("ThumbnailManager"))
     {
         UThumbnailManager::Get().UnregisterCustomRenderer(UDialogueCharacterAsset::StaticClass());
     }
 
     FEdGraphUtilities::UnregisterVisualNodeFactory(GraphNodeFactory);
+}
+
+void FDialogueSystemEditorModule::RegisterGraphNodeCreationDelegate(UClass* NodeType, FOnMakeWidgetForGraphNode Delegate)
+{
+    EditorGraphToWidgetDelegate.Emplace(NodeType, Delegate);
+}
+
+FOnMakeWidgetForGraphNode FDialogueSystemEditorModule::GetWidgetCreationDelegate(const UClass* NodeType)
+{
+    if (!EditorGraphToWidgetDelegate.Contains(NodeType))
+    {
+        return nullptr;
+    }
+    return EditorGraphToWidgetDelegate[NodeType];
+}
+
+void FDialogueSystemEditorModule::RegisterDefaultNodeWidgetCreationDelegates()
+{
+    EditorGraphToWidgetDelegate.Add(UDialogueEdGraphStartNode::StaticClass(), FOnMakeWidgetForGraphNode::CreateLambda([](UEdGraphNode* Node)
+    {
+        return SNew(SDialogueEdGraphStartNode, Node);
+    }));
+    EditorGraphToWidgetDelegate.Add(UDialogueEdGraphEndNode::StaticClass(), FOnMakeWidgetForGraphNode::CreateLambda([](UEdGraphNode* Node)
+    {
+        return SNew(SDialogueEdGraphEndNode, Node);
+    }));
+    EditorGraphToWidgetDelegate.Add(UDialogueEdGraphDialogueLineNode::StaticClass(), FOnMakeWidgetForGraphNode::CreateLambda([](UEdGraphNode* Node)
+    {
+        return SNew(SDialogueEdGraphLineNode, Node);
+    }));
+    EditorGraphToWidgetDelegate.Add(UDialogueEdGraphSceneNode::StaticClass(), FOnMakeWidgetForGraphNode::CreateLambda([](UEdGraphNode* Node)
+    {
+        return SNew(SDialogueEdGraphSceneNode, Node);
+    }));
+    EditorGraphToWidgetDelegate.Add(UDialogueEdGraphSelectNode::StaticClass(), FOnMakeWidgetForGraphNode::CreateLambda([](UEdGraphNode* Node)
+    {
+        return SNew(SDialogueEdGraphSelectNode, Node);
+    }));
+    EditorGraphToWidgetDelegate.Add(UDialogueEdGraphKnotNode::StaticClass(), FOnMakeWidgetForGraphNode::CreateLambda([](UEdGraphNode* Node)
+    {
+        return SNew(SGraphNodeKnot, Node);
+    }));
+    EditorGraphToWidgetDelegate.Add(UEdGraphNode_Comment::StaticClass(), FOnMakeWidgetForGraphNode::CreateLambda([](UEdGraphNode* Node)
+    {
+        return SNew(SGraphNodeComment, Cast<UEdGraphNode_Comment>(Node));
+    }));
 }
 
 IMPLEMENT_MODULE(FDialogueSystemEditorModule, DialogueSystemEditor)
