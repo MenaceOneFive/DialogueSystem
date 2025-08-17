@@ -1,6 +1,14 @@
 #include "Graph/Node/DialogueEdGraphStartNode.h"
 #include "EdGraph/EdGraph.h"
+#include "Graph/Node/DialogueStartNode.h"
 #include "Visitor/AbstractDialogueEdGraphVisitor.h"
+
+UDialogueEdGraphStartNode::UDialogueEdGraphStartNode()
+{
+    DialogueSetting.bShouldShowCursor      = false;
+    DialogueSetting.EFocusMode             = EFocusMode::UI;
+    DialogueSetting.bCanVisitMultipleTimes = false;
+}
 
 FText UDialogueEdGraphStartNode::GetNodeTitle(const ENodeTitleType::Type TitleType) const
 {
@@ -19,24 +27,13 @@ void UDialogueEdGraphStartNode::Accept(FAbstractDialogueEdGraphVisitor* Visitor)
     Visitor->VisitStartNode(this);
 }
 
+void UDialogueEdGraphStartNode::CopyTo(const TObjectPtr<UDialogueStartNode>& StartNode) const
+{
+    StartNode->SetWhenSelectThisNodeFunctionName(GetWhenSelectThisNodeFunctionName());
+    StartNode->SetDialogueSetting(DialogueSetting);
+}
+
 TObjectPtr<const UDialogueEdGraphNode> UDialogueEdGraphStartNode::GetNextNode() const
 {
-    // StartNode는 출력 1개만 갖고 있다고 가정한다.
-    UEdGraphPin* PinToNext = (*Pins.begin());
-
-    // 연결이 없는 경우 nullptr를 반환
-    if ( !PinToNext )
-    {
-        return nullptr;
-    }
-
-    // 출력에 연결되는 입력은 1개만 있다고 가정한다.
-    if ( !PinToNext->LinkedTo.IsEmpty() )
-    {
-        if ( const UEdGraphPin* LinkedTo = *(PinToNext->LinkedTo.begin()) )
-        {
-            return Cast<UDialogueEdGraphNode>(LinkedTo->GetOwningNode());
-        }
-    }
-    return nullptr;
+    return ::GetNextNode<ThisClass>(this);
 }

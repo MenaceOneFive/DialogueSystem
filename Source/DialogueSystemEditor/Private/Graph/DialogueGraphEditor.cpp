@@ -1,6 +1,7 @@
 #include "Graph/DialogueGraphEditor.h"
 
 #include "DialogueGraphBlueprintExtension.h"
+#include "DialogueSystemRuntimeModule.h"
 #include "EdGraphNode_Comment.h"
 #include "EdGraphUtilities.h"
 #include "GraphEditor.h"
@@ -20,9 +21,7 @@
 #include "Graph/Node/DialogueEdGraphNode.h"
 #include "Graph/Node/DialogueEdGraphSelectNode.h"
 #include "Graph/Node/DialogueEdGraphStartNode.h"
-#include "Graph/Node/DialogueEndNode.h"
 #include "Graph/Node/DialogueGraphNode.h"
-#include "Graph/Node/DialogueSceneNode.h"
 #include "Graph/Node/DialogueSelectionNode.h"
 #include "Graph/Node/DialogueStartNode.h"
 #include "Graph/Slate/PropertyEditor/DialogueCharacterDetail.h"

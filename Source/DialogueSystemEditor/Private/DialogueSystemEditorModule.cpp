@@ -1,23 +1,61 @@
 #include "DialogueSystemEditorModule.h"
 
+#include "DialogueSystemRuntimeModule.h"
 #include "EdGraphNode_Comment.h"
+#include "EditorCustomNodeManager.h"
+#include "ISequencerModule.h"
 #include "SGraphNodeComment.h"
 #include "SGraphNodeKnot.h"
 #include "Graph/DialogueGraphAssetFactory.h"
 #include "Graph/DialogueGraphEditorCommands.h"
 #include "Graph/DialogueGraphPanelNodeFactory.h"
+#include "Graph/Node/DialogueEdGraphCustomNode.h"
 #include "Graph/Node/DialogueEdGraphDialogueLineNode.h"
 #include "Graph/Node/DialogueEdGraphEndNode.h"
 #include "Graph/Node/DialogueEdGraphKnotNode.h"
 #include "Graph/Node/DialogueEdGraphSceneNode.h"
 #include "Graph/Node/DialogueEdGraphSelectNode.h"
 #include "Graph/Node/DialogueEdGraphStartNode.h"
+#include "Graph/Node/DialogueEditorCustomNodeDefinition.h"
 #include "Graph/Slate/Node/SDialogueEdGraphEndNode.h"
 #include "Graph/Slate/Node/SDialogueEdGraphLineNode.h"
 #include "Graph/Slate/Node/SDialogueEdGraphSceneNode.h"
 #include "Graph/Slate/Node/SDialogueEdGraphSelectNode.h"
 #include "Graph/Slate/Node/SDialogueEdGraphStartNode.h"
 #include "MovieScene/TrackEditor/DialogueLineTrackEditor.h"
+
+FText UDialogueEdGraphQTENode::GetDefaultSelectionName() const
+{
+    return NSLOCTEXT("DialoguePlayer", "QTENode", "QTE 노드");
+}
+
+TSubclassOf<UDialogueEdGraphCustomNode> FDialogueEdQTENodeDefinition::GetEditorNodeType() const
+{
+    return UDialogueEdGraphQTENode::StaticClass();
+}
+
+TSubclassOf<UDialogueCustomNode> FDialogueEdQTENodeDefinition::GetRuntimeNodeType() const
+{
+    return UDialogueQTENode::StaticClass();
+}
+
+void FDialogueEdQTENodeDefinition::InitializeRuntimeNodeWithEditorNode(UDialogueCustomNode* RuntimeNode, UDialogueEdGraphCustomNode* EditorNode) const
+{
+    const auto RuntimeQTENode           = Cast<UDialogueQTENode>(RuntimeNode);
+    const auto EditorQTENode            = Cast<UDialogueEdGraphQTENode>(EditorNode);
+    RuntimeQTENode->LevelSequenceToPlay = EditorQTENode->LevelSequenceToPlay;
+    RuntimeQTENode->Name                = EditorQTENode->Name;
+}
+
+TSharedPtr<SGraphNode> FDialogueEdQTENodeDefinition::MakeSlateWidgetForNode(UDialogueEdGraphCustomNode* EditorNode) const
+{
+    return nullptr;
+}
+
+EOutgoingConnection FDialogueEdQTENodeDefinition::GetConnectionType()
+{
+    return EOutgoingConnection::One;
+}
 
 void FDialogueSystemEditorModule::StartupModule()
 {
@@ -49,13 +87,20 @@ void FDialogueSystemEditorModule::StartupModule()
     {
         UThumbnailManager::Get().RegisterCustomRenderer(UDialogueCharacterAsset::StaticClass(), UDialogueCharacterThumbnailRenderer::StaticClass());
     }
+
+    CustomNodeManager = MakeUnique<FEditorCustomNodeManager>();
     // 기본 델리게이트 등록
-    EditorGraphToWidgetDelegate = TMap<UClass*, FOnMakeWidgetForGraphNode>();
     RegisterDefaultNodeWidgetCreationDelegates();
+
+    // TODO : 모듈 밖으로 이동
+    CustomNodeManager->RegisterCustomNodeDefinition(UDialogueEdGraphQTENode::StaticClass(), MakeShared<FDialogueEdQTENodeDefinition>());
 }
 
 void FDialogueSystemEditorModule::ShutdownModule()
 {
+    // TODO : 모듈 밖으로 이동
+    CustomNodeManager->UnregisterCustomNodeDefinition(UDialogueEdGraphQTENode::StaticClass());
+
     if (FModuleManager::Get().IsModuleLoaded("Sequencer"))
     {
         ISequencerModule& SequencerModule = FModuleManager::LoadModuleChecked<ISequencerModule>("Sequencer");
@@ -91,50 +136,52 @@ void FDialogueSystemEditorModule::ShutdownModule()
     FEdGraphUtilities::UnregisterVisualNodeFactory(GraphNodeFactory);
 }
 
-void FDialogueSystemEditorModule::RegisterGraphNodeCreationDelegate(UClass* NodeType, FOnMakeWidgetForGraphNode Delegate)
+FEditorCustomNodeManager* FDialogueSystemEditorModule::GetCustomNodeManager() const
 {
-    EditorGraphToWidgetDelegate.Emplace(NodeType, Delegate);
+    return CustomNodeManager.Get();
 }
 
-FOnMakeWidgetForGraphNode FDialogueSystemEditorModule::GetWidgetCreationDelegate(const UClass* NodeType)
+void FDialogueSystemEditorModule::RegisterDefaultNodeWidgetCreationDelegates() const
 {
-    if (!EditorGraphToWidgetDelegate.Contains(NodeType))
-    {
-        return nullptr;
-    }
-    return EditorGraphToWidgetDelegate[NodeType];
-}
-
-void FDialogueSystemEditorModule::RegisterDefaultNodeWidgetCreationDelegates()
-{
-    EditorGraphToWidgetDelegate.Add(UDialogueEdGraphStartNode::StaticClass(), FOnMakeWidgetForGraphNode::CreateLambda([](UEdGraphNode* Node)
+    CustomNodeManager->RegisterGraphNodeCreationDelegate(UDialogueEdGraphStartNode::StaticClass(), FOnMakeWidgetForGraphNode::CreateLambda([](UEdGraphNode* Node)
     {
         return SNew(SDialogueEdGraphStartNode, Node);
     }));
-    EditorGraphToWidgetDelegate.Add(UDialogueEdGraphEndNode::StaticClass(), FOnMakeWidgetForGraphNode::CreateLambda([](UEdGraphNode* Node)
+    CustomNodeManager->RegisterGraphNodeCreationDelegate(UDialogueEdGraphEndNode::StaticClass(), FOnMakeWidgetForGraphNode::CreateLambda([](UEdGraphNode* Node)
     {
         return SNew(SDialogueEdGraphEndNode, Node);
     }));
-    EditorGraphToWidgetDelegate.Add(UDialogueEdGraphDialogueLineNode::StaticClass(), FOnMakeWidgetForGraphNode::CreateLambda([](UEdGraphNode* Node)
+    CustomNodeManager->RegisterGraphNodeCreationDelegate(UDialogueEdGraphDialogueLineNode::StaticClass(), FOnMakeWidgetForGraphNode::CreateLambda([](UEdGraphNode* Node)
     {
         return SNew(SDialogueEdGraphLineNode, Node);
     }));
-    EditorGraphToWidgetDelegate.Add(UDialogueEdGraphSceneNode::StaticClass(), FOnMakeWidgetForGraphNode::CreateLambda([](UEdGraphNode* Node)
+    CustomNodeManager->RegisterGraphNodeCreationDelegate(UDialogueEdGraphSceneNode::StaticClass(), FOnMakeWidgetForGraphNode::CreateLambda([](UEdGraphNode* Node)
     {
         return SNew(SDialogueEdGraphSceneNode, Node);
     }));
-    EditorGraphToWidgetDelegate.Add(UDialogueEdGraphSelectNode::StaticClass(), FOnMakeWidgetForGraphNode::CreateLambda([](UEdGraphNode* Node)
+    CustomNodeManager->RegisterGraphNodeCreationDelegate(UDialogueEdGraphSelectNode::StaticClass(), FOnMakeWidgetForGraphNode::CreateLambda([](UEdGraphNode* Node)
     {
         return SNew(SDialogueEdGraphSelectNode, Node);
     }));
-    EditorGraphToWidgetDelegate.Add(UDialogueEdGraphKnotNode::StaticClass(), FOnMakeWidgetForGraphNode::CreateLambda([](UEdGraphNode* Node)
+    CustomNodeManager->RegisterGraphNodeCreationDelegate(UDialogueEdGraphKnotNode::StaticClass(), FOnMakeWidgetForGraphNode::CreateLambda([](UEdGraphNode* Node)
     {
         return SNew(SGraphNodeKnot, Node);
     }));
-    EditorGraphToWidgetDelegate.Add(UEdGraphNode_Comment::StaticClass(), FOnMakeWidgetForGraphNode::CreateLambda([](UEdGraphNode* Node)
+    CustomNodeManager->RegisterGraphNodeCreationDelegate(UEdGraphNode_Comment::StaticClass(), FOnMakeWidgetForGraphNode::CreateLambda([](UEdGraphNode* Node)
     {
         return SNew(SGraphNodeComment, Cast<UEdGraphNode_Comment>(Node));
     }));
+}
+
+void FDialogueSystemEditorModule::UnregisterDefaultNodeWidgetCreationDelegates() const
+{
+    CustomNodeManager->UnregisterGraphNodeCreationDelegate(UDialogueEdGraphStartNode::StaticClass());
+    CustomNodeManager->UnregisterGraphNodeCreationDelegate(UDialogueEdGraphEndNode::StaticClass());
+    CustomNodeManager->UnregisterGraphNodeCreationDelegate(UDialogueEdGraphDialogueLineNode::StaticClass());
+    CustomNodeManager->UnregisterGraphNodeCreationDelegate(UDialogueEdGraphSceneNode::StaticClass());
+    CustomNodeManager->UnregisterGraphNodeCreationDelegate(UDialogueEdGraphSelectNode::StaticClass());
+    CustomNodeManager->UnregisterGraphNodeCreationDelegate(UDialogueEdGraphKnotNode::StaticClass());
+    CustomNodeManager->UnregisterGraphNodeCreationDelegate(UEdGraphNode_Comment::StaticClass());
 }
 
 IMPLEMENT_MODULE(FDialogueSystemEditorModule, DialogueSystemEditor)

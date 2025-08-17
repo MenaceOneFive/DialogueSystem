@@ -17,6 +17,7 @@ public:
     virtual void VisitSelectNode(UDialogueEdGraphSelectNode* SelectNode) override;
     virtual void VisitLineNode(UDialogueEdGraphDialogueLineNode* LineNode) override;
     virtual void VisitSceneNode(UDialogueEdGraphSceneNode* SceneNode) override;
+    virtual void VisitCustomNode(UDialogueEdGraphCustomNode* EventNode) override;
 
 private:
     const TMap<UDialogueEdGraphNode*, UDialogueGraphNode*>* EditorToRuntime;

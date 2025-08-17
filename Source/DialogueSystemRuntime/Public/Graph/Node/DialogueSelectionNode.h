@@ -13,6 +13,8 @@ class DIALOGUESYSTEMRUNTIME_API UDialogueSelectionNode : public UDialogueConditi
 public:
     virtual void Accept(TScriptInterface<IRuntimeDialogueGraphVisitor> Visitor) const override;
 
+    virtual FText GetDefaultSelectionName() const override;;
+
     /// <summary>
     /// 현재 노드의 선택지 항목들을 반환합니다.
     /// </summary>
@@ -26,16 +28,20 @@ public:
     TArray<FGuid> GetPrevNodeIDs() const;
 
     /// <summary>
+    /// 선택지에 따른 다음 노드들의 ID 배열을 반환합니다.
+    /// </summary>
+    /// <returns>다음 노드들의 GUID 배열</returns>
+    TArray<FGuid> GetNextNodeIDs() const;
+
+    virtual FText GetSelectionName() const override;
+
+#if WITH_EDITORONLY_DATA
+    /// <summary>
     /// 이전 노드들의 ID 배열을 설정합니다.
     /// </summary>
     /// <param name="InPrevNodeIDs">설정할 이전 노드들의 ID 배열</param>
     void SetPrevNodeIDs(const TArray<FGuid>& InPrevNodeIDs);
 
-    /// <summary>
-    /// 선택지에 따른 다음 노드들의 ID 배열을 반환합니다.
-    /// </summary>
-    /// <returns>다음 노드들의 GUID 배열</returns>
-    TArray<FGuid> GetNextNodeIDs() const;
 
     /// <summary>
     /// 선택지에 따른 다음 노드들의 ID 배열을 설정합니다.
@@ -48,6 +54,9 @@ public:
     /// </summary>
     /// <param name="Items">설정할 선택지 항목 배열</param>
     void SetSelectionItems(const TArray<UDialogueSelectionItem*>& Items);
+
+    virtual void SetSelectionName(FText& InSelectionName) override;
+#endif
 
 protected:
     UPROPERTY(VisibleAnywhere)

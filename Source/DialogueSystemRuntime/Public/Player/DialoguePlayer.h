@@ -16,9 +16,6 @@ class UDialoguePlayer : public UInterface
     GENERATED_BODY()
 };
 
-/**
- * 
- */
 class DIALOGUESYSTEMRUNTIME_API IDialoguePlayer
 {
     GENERATED_BODY()

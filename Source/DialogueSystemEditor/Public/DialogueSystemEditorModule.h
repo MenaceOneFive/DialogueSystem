@@ -2,16 +2,58 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ISequencerModule.h"
+#include "EditorCustomNodeManager.h"
 #include "Character/DialogueCharacterAsset.h"
+#include "Graph/Node/DialogueCustomNode.h"
+#include "Graph/Node/DialogueEdGraphCustomNode.h"
+#include "Graph/Node/DialogueEditorCustomNodeDefinition.h"
 #include "Modules/ModuleManager.h"
 #include "WorkflowOrientedApp/WorkflowTabManager.h"
+#include "DialogueSystemEditorModule.generated.h"
 
+class FDialogueEditorCustomNodeDefinition;
 class FDialogueGraphPanelNodeFactory;
 class FDialogueGraphEditor;
 class FAssetTypeActions_DialogueGraph;
 
-DECLARE_DELEGATE_RetVal_OneParam(TSharedRef<SGraphNode>, FOnMakeWidgetForGraphNode, UEdGraphNode*)
+
+UCLASS()
+class DIALOGUESYSTEMEDITOR_API UDialogueEdGraphQTENode : public UDialogueEdGraphCustomNode
+{
+    GENERATED_BODY()
+
+public:
+    virtual FText GetDefaultSelectionName() const override;
+    UPROPERTY(EditAnywhere)
+    TSoftObjectPtr<ULevelSequence> LevelSequenceToPlay;
+
+    UPROPERTY(EditAnywhere)
+    FString Name;
+};
+
+struct DIALOGUESYSTEMEDITOR_API FDialogueEdQTENodeDefinition : public FDialogueEditorCustomNodeDefinition
+{
+    virtual TSubclassOf<UDialogueEdGraphCustomNode> GetEditorNodeType() const override;
+    virtual TSubclassOf<UDialogueCustomNode> GetRuntimeNodeType() const override;
+    virtual void InitializeRuntimeNodeWithEditorNode(UDialogueCustomNode* RuntimeNode, UDialogueEdGraphCustomNode* EditorNode) const override;
+    virtual TSharedPtr<SGraphNode> MakeSlateWidgetForNode(UDialogueEdGraphCustomNode* EditorNode) const override;
+    virtual EOutgoingConnection GetConnectionType() override;
+
+    virtual FString GetNodeName() const override
+    {
+        return "QTENode";
+    };
+
+    virtual FString GetNodeDescription() const override
+    {
+        return "QTENode";
+    };
+
+    virtual FString GetNodeSearchKeyword() const override
+    {
+        return "QTENode";
+    };
+};
 
 class DIALOGUESYSTEMEDITOR_API FDialogueSystemEditorModule final : public IModuleInterface
 {
@@ -19,9 +61,11 @@ public:
     virtual void StartupModule() override;
     virtual void ShutdownModule() override;
 
-    void RegisterGraphNodeCreationDelegate(UClass* NodeType, FOnMakeWidgetForGraphNode Delegate);
+    FEditorCustomNodeManager* GetCustomNodeManager() const;
 
-    FOnMakeWidgetForGraphNode GetWidgetCreationDelegate(const UClass* NodeType);
+private:
+    void RegisterDefaultNodeWidgetCreationDelegates() const;
+    void UnregisterDefaultNodeWidgetCreationDelegates() const;
 
 private:
     // 시퀀서 통합을 위한 델리게이트 핸들
@@ -35,9 +79,5 @@ private:
 
     TSharedPtr<FAssetTypeActions_DialogueGraph> GraphAssetTypeActions;
     TSharedPtr<FAssetTypeActions_DialogueCharacter> CharacterAssetTypeActions;
-
-
-    TMap<UClass*, FOnMakeWidgetForGraphNode> EditorGraphToWidgetDelegate;
-
-    void RegisterDefaultNodeWidgetCreationDelegates();
+    TUniquePtr<FEditorCustomNodeManager> CustomNodeManager;
 };

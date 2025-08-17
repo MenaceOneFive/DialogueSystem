@@ -2,8 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "Graph/Node/DialogueEdGraphSceneNode.h"
+#include "Graph/Node/SequencePlayCapability.h"
 #include "DialogueEdGraphDialogueLineNode.generated.h"
 
+class UDialogueLineNode;
 class ULevelSequence;
 class UDialogueCharacterAsset;
 class FAbstractDialogueEdGraphVisitor;
@@ -24,17 +26,22 @@ struct FDialogueLineCreationPrompt
 
 UCLASS()
 class DIALOGUESYSTEMEDITOR_API UDialogueEdGraphDialogueLineNode : public UDialogueEdGraphSceneNode
+                                                                  , public ISequencePlayCapability
 {
     GENERATED_BODY()
 
 public:
+    UDialogueEdGraphDialogueLineNode();
+
+    void CopyTo(const TObjectPtr<UDialogueLineNode>& LineNode) const;
+
     // 대사를 말하는 캐릭터
     UPROPERTY(EditAnywhere)
     TObjectPtr<UDialogueCharacterAsset> DialogueCharacterAsset;
 
     // 생성된 MovieScene
     UPROPERTY(EditAnywhere)
-    TObjectPtr<ULevelSequence> LevelSequenceToPlay;
+    TSoftObjectPtr<ULevelSequence> LevelSequenceToPlay;
 
     // 실제 사용할 대사 (생성하거나 직접 작성할 수 있다.)
     UPROPERTY(EditAnywhere)
@@ -53,21 +60,21 @@ public: // UEdGraphNode
     virtual FLinearColor GetNodeTitleColor() const override;
     virtual FText GetTooltipText() const override;
 
-public: // Visitor 패턴
+    virtual FText GetDefaultSelectionName() const override;;
+
+    // Visitor 패턴
     virtual void Accept(FAbstractDialogueEdGraphVisitor* Visitor) override;
-
-    /// <summary>
-    /// 다음 노드를 반환 
-    /// </summary>
-    /// <returns>다음 노드</returns>
-    TObjectPtr<const UDialogueEdGraphNode> GetNextNode() const;
-
-    /// <summary>
-    /// 이전 노드의 목록을 반환 
-    /// </summary>
-    /// <returns>이전 노드의 목록</returns>
-    TArray<TObjectPtr<const UDialogueEdGraphNode>> GetPrevNodes() const;
 
 public: // UObject 
     virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+
+public: // ISequencePlayCapability
+    virtual TSoftObjectPtr<ULevelSequence> GetLevelSequenceToPlay() const override;
+    virtual void SetLevelSequenceToPlay(const TSoftObjectPtr<ULevelSequence>& LevelSequence) override;
+    virtual FSequencePlaySetting GetSequencePlaySetting() const override;
+    virtual void SetSequencePlaySetting(const FSequencePlaySetting& InSequencePlaySetting) override;
+
+protected:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FSequencePlaySetting SequencePlaySetting;
 };

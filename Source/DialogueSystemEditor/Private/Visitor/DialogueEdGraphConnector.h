@@ -9,7 +9,7 @@ class UDialogueEdGraphNode;
 /// </summary>
 class FDialogueEdGraphConnector final : public FAbstractDialogueEdGraphVisitor
 {
-public:
+public: // FAbstractDialogueEdGraphVisitor
     explicit FDialogueEdGraphConnector(TMap<UDialogueEdGraphNode*, UDialogueGraphNode*>* EditorToRuntime);
 
     virtual void VisitStartNode(UDialogueEdGraphStartNode* StartNode) override;
@@ -22,8 +22,13 @@ public:
 
     virtual void VisitSceneNode(UDialogueEdGraphSceneNode* SceneNode) override;
 
+    virtual void VisitCustomNode(UDialogueEdGraphCustomNode* CustomNode) override;
+
+private:
     TArray<FGuid> GetPrevNodeGuids(const TArray<TObjectPtr<const UDialogueEdGraphNode>>& EdGraphNodes);
-    FGuid GetNextNodeGuid(const TObjectPtr<const UDialogueEdGraphNode>& EdGraphNode);
+    TObjectPtr<const UDialogueEdGraphNode> GetNextNode(const TObjectPtr<const UDialogueEdGraphNode>& EdGraphNode) const;
+    FGuid GetNextNodeGuid(const TObjectPtr<const UDialogueEdGraphNode>& EdGraphNode) const;
+    TArray<FGuid> GetNextNodeGuids(const TArray<TObjectPtr<const UDialogueEdGraphNode>>& EdGraphNodes) const;
 
 private:
     TMap<UDialogueEdGraphNode*, UDialogueGraphNode*>* EditorToRuntime;

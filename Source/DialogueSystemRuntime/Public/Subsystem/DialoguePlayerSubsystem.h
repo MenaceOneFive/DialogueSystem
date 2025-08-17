@@ -9,7 +9,7 @@
 
 class UDialogueGraph;
 class UListView;
-class UDialoguePlayerInstancePool;
+class ULevelSequencePlayerInstancePool;
 class ULevelSequencePlayerHolder;
 class ULevelSequence;
 class UDialoguePlayerInstance;
@@ -34,7 +34,7 @@ public:
 
 private:
     UPROPERTY()
-    UDialoguePlayerInstancePool* PlayerResourcePool;
+    ULevelSequencePlayerInstancePool* PlayerResourcePool;
 };
 
 // 대화와 관련된 UI(자막, 선택지 , 셀렉터)를 관리하는 서브시스템

@@ -1,14 +1,14 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Subsystem/DialoguePlayerSubsystem.h"
 
 #include "Player/DialoguePlayerInstance.h"
+#include "Player/LevelSequencePlayerPool.h"
 
 void UDialoguePlayerRuntimeSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
-    PlayerResourcePool = NewObject<UDialoguePlayerInstancePool>(this);
+    PlayerResourcePool = NewObject<ULevelSequencePlayerInstancePool>(this);
     PlayerResourcePool->InitializeSequencePlayerPool(5);
 }
 

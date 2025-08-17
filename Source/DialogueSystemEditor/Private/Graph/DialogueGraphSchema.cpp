@@ -2,9 +2,11 @@
 
 #include "Graph/DialogueGraphSchema.h"
 
+#include "EditorCustomNodeManager.h"
 #include "ToolMenus.h"
 #include "Framework/Commands/GenericCommands.h"
 #include "Graph/DialogueGraphEditorCommands.h"
+#include "Graph/Node/DialogueEdGraphCustomNode.h"
 #include "Graph/Node/DialogueEdGraphDialogueLineNode.h"
 #include "Graph/Node/DialogueEdGraphEndNode.h"
 #include "Graph/Node/DialogueEdGraphKnotNode.h"
@@ -75,6 +77,14 @@ void UDialogueGraphSchema::GetGraphContextActions(FGraphContextMenuBuilder& Cont
                                                              FText::FromString("Line Node")));
     ContextMenuBuilder.AddAction(DialogueLineNodeAction);
 
+    // 대사 노드
+    const TSharedRef<FDialogueGraphSchema_SpawnNode> DialogueEventNodeAction =
+            MakeShareable(new FDialogueGraphSchema_SpawnNode(UDialogueEdGraphCustomNode::StaticClass(),
+                                                             FText::FromString("Event Node"),
+                                                             FText::FromString("Event Node"),
+                                                             FText::FromString("Event Node")));
+    ContextMenuBuilder.AddAction(DialogueEventNodeAction);
+
     // 선택 노드
     const TSharedRef<FDialogueGraphSchema_SpawnNode> SpawnSelectDialogueAction =
             MakeShareable(new FDialogueGraphSchema_SpawnNode(UDialogueEdGraphSelectNode::StaticClass(),
@@ -82,6 +92,18 @@ void UDialogueGraphSchema::GetGraphContextActions(FGraphContextMenuBuilder& Cont
                                                              FText::FromString("Select Node2"),
                                                              FText::FromString("Select")));
     ContextMenuBuilder.AddAction(SpawnSelectDialogueAction);
+
+    FDialogueSystemEditorModule& Module = FModuleManager::Get().GetModuleChecked<FDialogueSystemEditorModule>("DialogueSystemEditor");
+    for (auto Definitions = Module.GetCustomNodeManager()->GetAllCustomNodeDefinitions();
+         const auto& NodeDefinition : Definitions)
+    {
+        const TSharedRef<FDialogueGraphSchema_SpawnNode> SpawnCustomDialogueAction =
+                MakeShareable(new FDialogueGraphSchema_SpawnNode(NodeDefinition->GetEditorNodeType(),
+                                                                 FText::FromString(NodeDefinition->GetNodeName()),
+                                                                 FText::FromString(NodeDefinition->GetNodeDescription()),
+                                                                 FText::FromString(NodeDefinition->GetNodeSearchKeyword())));
+        ContextMenuBuilder.AddAction(SpawnCustomDialogueAction);
+    }
 
     Super::GetGraphContextActions(ContextMenuBuilder);
 }

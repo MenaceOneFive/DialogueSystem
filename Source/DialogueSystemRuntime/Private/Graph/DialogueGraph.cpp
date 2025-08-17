@@ -91,7 +91,10 @@ void UDialogueGraph::Clear()
 {
     for (const auto Pair : Nodes)
     {
-        Pair.Value->Rename(nullptr, nullptr);
+        if (Pair.Value)
+        {
+            Pair.Value->Rename(nullptr, nullptr);
+        }
     }
     Nodes.Empty();
     if (StartNode)

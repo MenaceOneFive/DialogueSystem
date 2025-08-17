@@ -1,5 +1,6 @@
 #pragma once
 #include "Graph/Node/DialogueNodeInterface.h"
+#include "Player/DialoguePlaySetting.h"
 #include "DialogueGraphNode.generated.h"
 
 class UDialogueGraphDirector;
@@ -32,21 +33,31 @@ public:
     /// <returns>노드의 GUID</returns>
     FGuid GetNodeID() const;
 
+    FDialogueSetting GetDialogueSetting() const;
+
+#if WITH_EDITORONLY_DATA
     /// <summary>
     /// 노드의 고유 ID를 설정합니다.
     /// </summary>
     /// <param name="InNodeGuid">설정할 노드의 GUID</param>
     void SetNodeID(const FGuid& InNodeGuid);
 
-public:
-    virtual FName GetWhenSelectThisNodeFunctionName() const override;
+    void SetDialogueSetting(const FDialogueSetting& InDialogueSetting);
+
     virtual void SetWhenSelectThisNodeFunctionName(FName InWhenSelectThisNodeFunctionName = NAME_None) override;
+#endif
+
+    virtual FName GetWhenSelectThisNodeFunctionName() const override;
 
 protected:
     UPROPERTY(VisibleAnywhere)
     FGuid NodeID; // 이 노드의 고유 ID
+
     UPROPERTY(VisibleAnywhere)
     FName WhenSelectThisNodeFunctionName = NAME_None;
+
+    UPROPERTY(VisibleAnywhere)
+    FDialogueSetting DialogueSetting;
 };
 
 using DialogueLineID = uint64; // TODO: 별도의 정의 파일로 이동

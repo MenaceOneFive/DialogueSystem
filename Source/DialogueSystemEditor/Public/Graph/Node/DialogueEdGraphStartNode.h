@@ -4,6 +4,7 @@
 #include "Graph/Node/DialogueEdGraphNode.h"
 #include "DialogueEdGraphStartNode.generated.h"
 
+class UDialogueStartNode;
 class FAbstractDialogueEdGraphVisitor;
 
 UCLASS()
@@ -11,12 +12,17 @@ class DIALOGUESYSTEMEDITOR_API UDialogueEdGraphStartNode : public UDialogueEdGra
 {
     GENERATED_BODY()
 
-public: // UEdGraphNode
+public:
+    UDialogueEdGraphStartNode();
+
+    // UEdGraphNode
     virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
     virtual void AllocateDefaultPins() override;
 
 public: // Visitor 패턴
     virtual void Accept(FAbstractDialogueEdGraphVisitor* Visitor) override;
+
+    void CopyTo(const TObjectPtr<UDialogueStartNode>& StartNode) const;
 
     /// <summary>
     /// 다음 노드를 반환 

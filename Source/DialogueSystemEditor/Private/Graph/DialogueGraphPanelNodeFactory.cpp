@@ -5,6 +5,7 @@
 
 #include "DialogueSystemEditorModule.h"
 #include "EdGraphNode_Comment.h"
+#include "EditorCustomNodeManager.h"
 #include "SGraphNodeComment.h"
 #include "SGraphNodeKnot.h"
 #include "Graph/Node/DialogueEdGraphDialogueLineNode.h"
@@ -39,7 +40,7 @@ TSharedPtr<SGraphNode> FDialogueGraphPanelNodeFactory::CreateNode(UEdGraphNode* 
 
     // 에디터 노드의 클래스 정보를 이용해서 위젯 생성 델리게이트가 있는지 확인합니다.
     const UClass* NodeType = Node->GetClass();
-    if (const FOnMakeWidgetForGraphNode Delegate = Module->GetWidgetCreationDelegate(NodeType);
+    if (const FOnMakeWidgetForGraphNode Delegate = Module->GetCustomNodeManager()->GetWidgetCreationDelegate(NodeType);
         Delegate.IsBound())
     {
         // 있으면 위젯을 만들어서 반환합니다.

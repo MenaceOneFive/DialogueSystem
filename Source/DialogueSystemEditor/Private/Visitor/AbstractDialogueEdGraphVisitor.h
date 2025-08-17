@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+class UDialogueEdGraphCustomNode;
 class UDialogueEdGraphSceneNode;
 class UDialogueEdGraphDialogueLineNode;
 class UDialogueEdGraphSelectNode;
@@ -16,4 +17,5 @@ public:
     virtual void VisitSelectNode(UDialogueEdGraphSelectNode* SelectNode) = 0;
     virtual void VisitLineNode(UDialogueEdGraphDialogueLineNode* LineNode) = 0;
     virtual void VisitSceneNode(UDialogueEdGraphSceneNode* SceneNode) = 0;
+    virtual void VisitCustomNode(UDialogueEdGraphCustomNode* EventNode) = 0;
 };

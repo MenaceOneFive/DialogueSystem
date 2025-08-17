@@ -4,6 +4,7 @@
 #include "Graph/Node/DialogueEdGraphConditionalNode.h"
 #include "DialogueEdGraphSelectNode.generated.h"
 
+class UDialogueSelectionNode;
 class FAbstractDialogueEdGraphVisitor;
 
 UCLASS()
@@ -11,7 +12,13 @@ class DIALOGUESYSTEMEDITOR_API UDialogueEdGraphSelectNode : public UDialogueEdGr
 {
     GENERATED_BODY()
 
-public: // UEdGraphNode
+public:
+    UDialogueEdGraphSelectNode();
+
+    void CopyTo(const TObjectPtr<UDialogueSelectionNode>& SelectionNode) const;
+
+    virtual FText GetDefaultSelectionName() const override;;
+    // UEdGraphNode
     virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
     virtual void AllocateDefaultPins() override;
     virtual FText GetTooltipText() const override;

@@ -14,6 +14,16 @@ UDialogueEdGraphNode::UDialogueEdGraphNode()
     bCanResizeNode = true;
 }
 
+FDialogueSetting UDialogueEdGraphNode::GetDialogueSetting() const
+{
+    return DialogueSetting;
+}
+
+void UDialogueEdGraphNode::SetDialogueSetting(const FDialogueSetting& InDialogueSetting)
+{
+    this->DialogueSetting = InDialogueSetting;
+}
+
 bool UDialogueEdGraphNode::IsAllowRecursiveConnection() const
 {
     return bAllowRecursiveConnection;

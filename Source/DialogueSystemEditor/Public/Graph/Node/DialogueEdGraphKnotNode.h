@@ -18,19 +18,18 @@ class DIALOGUESYSTEMEDITOR_API UDialogueEdGraphKnotNode : public UDialogueEdGrap
 public:
     virtual bool ShouldDrawNodeAsControlPointOnly(int32& OutInputPinIndex, int32& OutOutputPinIndex) const override;
     virtual void AllocateDefaultPins() override;
+
     TArray<TObjectPtr<const UDialogueEdGraphNode>> GetPrevNodes() const;
-
-    virtual bool CanSplitPin(const UEdGraphPin* Pin) const override
-    {
-        return false;
-    };
-
 
     /// <summary>
     /// 다음 노드를 반환 
     /// </summary>
     /// <returns>다음 노드</returns>
     TObjectPtr<const UDialogueEdGraphNode> GetNextNode() const;
+
+    virtual bool CanSplitPin(const UEdGraphPin* Pin) const override;;
+
+
     UEdGraphPin* GetInputPin();
     UEdGraphPin* GetOutputPin();
 };

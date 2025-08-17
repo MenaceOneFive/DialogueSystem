@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "DialogueGraphPinConnectionPolicies.h"
+#include "DialogueSystemEditorModule.h"
 #include "Node/DialogueEdGraphNode.h"
 #include "DialogueGraphSchema.generated.h"
 

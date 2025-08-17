@@ -1,11 +1,13 @@
 ﻿#include "DialogueEdGraphLogger.h"
 
+#include "Graph/Node/DialogueCustomNode.h"
+#include "Graph/Node/DialogueEdGraphCustomNode.h"
 #include "Graph/Node/DialogueEdGraphDialogueLineNode.h"
 #include "Graph/Node/DialogueEdGraphEndNode.h"
 #include "Graph/Node/DialogueEdGraphSelectNode.h"
 #include "Graph/Node/DialogueEdGraphStartNode.h"
 #include "Graph/Node/DialogueEndNode.h"
-#include "Graph/Node/DialogueSceneNode.h"
+#include "Graph/Node/DialogueLineNode.h"
 #include "Graph/Node/DialogueSelectionNode.h"
 #include "Graph/Node/DialogueStartNode.h"
 
@@ -54,8 +56,8 @@ void FDialogueEdGraphLogger::VisitSelectNode(UDialogueEdGraphSelectNode* SelectN
 
 void FDialogueEdGraphLogger::VisitLineNode(UDialogueEdGraphDialogueLineNode* LineNode)
 {
-    const UDialogueSceneNode* RuntimeLineNode = Cast<UDialogueSceneNode>(*EditorToRuntime->Find(LineNode));
-    FString PrevIds                           = "";
+    const UDialogueLineNode* RuntimeLineNode = Cast<UDialogueLineNode>(*EditorToRuntime->Find(LineNode));
+    FString PrevIds                          = "";
     for (FGuid PrevNodeID : RuntimeLineNode->GetPrevNodeIDs())
     {
         PrevIds.Append(PrevNodeID.ToString());
@@ -66,4 +68,29 @@ void FDialogueEdGraphLogger::VisitLineNode(UDialogueEdGraphDialogueLineNode* Lin
 
 void FDialogueEdGraphLogger::VisitSceneNode(UDialogueEdGraphSceneNode* SceneNode)
 {
+    const UDialogueLineNode* RuntimeLineNode = Cast<UDialogueLineNode>(*EditorToRuntime->Find(SceneNode));
+    FString PrevIds                          = "";
+    for (FGuid PrevNodeID : RuntimeLineNode->GetPrevNodeIDs())
+    {
+        PrevIds.Append(PrevNodeID.ToString());
+        PrevIds.Append("\n");
+    }
+    UE_LOG(LogTemp, Log, TEXT("SceneNode %s Prev:%s Next:%s"), *RuntimeLineNode->GetNodeID().ToString(), *PrevIds, *RuntimeLineNode->GetNextNodeID().ToString());
+}
+
+void FDialogueEdGraphLogger::VisitCustomNode(UDialogueEdGraphCustomNode* EventNode)
+{
+    const UDialogueCustomNode* RuntimeLineNode = Cast<UDialogueCustomNode>(*EditorToRuntime->Find(EventNode));
+    FString PrevIds                            = "";
+    for (FGuid PrevNodeID : RuntimeLineNode->GetPrevNodeIDs())
+    {
+        PrevIds.Append(PrevNodeID.ToString());
+        PrevIds.Append("\n");
+    }
+    UE_LOG(LogTemp, Log, TEXT("CustomNode ID: %s Prev:%s Next:%s Type:%s"),
+           *RuntimeLineNode->GetNodeID().ToString(),
+           *PrevIds,
+           *RuntimeLineNode->GetNextNodeID().ToString(),
+           *EventNode->GetClass()->GetName()
+            );
 }
