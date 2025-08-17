@@ -2,8 +2,9 @@
 #include "Algo/Count.h"
 #include "Graph/DialogueEdGraph.h"
 #include "Graph/DialogueGraph.h"
+#include "Graph/Node/DialogueEdGraphDialogueLineNode.h"
+#include "Graph/Node/DialogueEdGraphSelectNode.h"
 
-class UDialogueEdGraphSelectNode;
 
 FDialogueGraphDetailViewModel::FDialogueGraphDetailViewModel(const TSharedPtr<IPropertyHandle>& PropertyHandle)
 {

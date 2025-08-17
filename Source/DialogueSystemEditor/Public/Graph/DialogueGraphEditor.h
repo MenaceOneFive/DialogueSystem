@@ -86,6 +86,8 @@ public: // 이벤트 리스너
 
     void OnCreateComment() const;
 
+    void OnNodeTitleCommitted(const FText& Text, ETextCommit::Type Arg, UEdGraphNode* EdGraphNode) const;
+
 protected: // 저장관련
 
     void GenerateRuntimeGraph() const;

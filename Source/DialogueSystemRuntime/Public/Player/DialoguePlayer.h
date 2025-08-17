@@ -16,9 +16,6 @@ class UDialoguePlayer : public UInterface
     GENERATED_BODY()
 };
 
-/**
- * 
- */
 class DIALOGUESYSTEMRUNTIME_API IDialoguePlayer
 {
     GENERATED_BODY()
@@ -28,7 +25,8 @@ public:
     virtual void Play() const = 0;
 
     // 특정 위치로 이동해서 재생합니다.
-    virtual void PlayTo(const FMovieSceneSequencePlaybackParams& PlaybackParams, const FMovieSceneSequencePlayToParams& PlayToParams) const = 0;
+    virtual void PlayTo(const FMovieSceneSequencePlaybackParams& PlaybackParams,
+                        const FMovieSceneSequencePlayToParams& PlayToParams) const = 0;
 
     // 대화를 중단합니다.
     virtual void Stop() const = 0;

@@ -3,6 +3,7 @@
 #include "Graph/Slate/Node/SDialogueEdGraphLineNode.h"
 
 #include "SGraphPin.h"
+#include "Character/DialogueCharacterAsset.h"
 #include "Graph/Node/DialogueEdGraphDialogueLineNode.h"
 #include "Widgets/SCanvas.h"
 #include "Widgets/Text/SMultiLineEditableText.h"

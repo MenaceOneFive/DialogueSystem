@@ -11,6 +11,7 @@
 #include "Framework/MultiBox/MultiBoxBuilder.h"
 #include "Graph/DialogueEdGraph.h"
 #include "Graph/DialogueGraph.h"
+#include "Graph/Node/DialogueEdGraphDialogueLineNode.h"
 #include "Graph/Node/DialogueEdGraphNode.h"
 #include "MVVM/Views/ViewUtilities.h"
 #include "Section/DialogueLineSection.h"

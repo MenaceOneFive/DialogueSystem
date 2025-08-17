@@ -4,7 +4,9 @@
 #include "DetailLayoutBuilder.h"
 #include "DetailWidgetRow.h"
 #include "IDetailGroup.h"
+#include "Graph/DialogueGraph.h"
 #include "Graph/DialogueGraphAssetFactory.h"
+#include "Graph/Node/DialogueEdGraphDialogueLineNode.h"
 #include "Widgets/Input/SMultiLineEditableTextBox.h"
 
 #define LOCTEXT_NAMESPACE "DialogueLineDetails"

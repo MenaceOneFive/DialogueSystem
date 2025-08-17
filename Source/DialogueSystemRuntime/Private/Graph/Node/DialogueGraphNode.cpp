@@ -16,17 +16,32 @@ FGuid UDialogueGraphNode::GetNodeID() const
     return NodeID;
 }
 
+
+FDialogueSetting UDialogueGraphNode::GetDialogueSetting() const
+{
+    return DialogueSetting;
+}
+
+#if WITH_EDITORONLY_DATA
+
 void UDialogueGraphNode::SetNodeID(const FGuid& InNodeGuid)
 {
     this->NodeID = InNodeGuid;
 }
 
-FName UDialogueGraphNode::GetWhenSelectThisNodeFunctionName() const
+void UDialogueGraphNode::SetDialogueSetting(const FDialogueSetting& InDialogueSetting)
 {
-    return WhenSelectThisNodeFunctionName;
+    this->DialogueSetting = InDialogueSetting;
 }
 
 void UDialogueGraphNode::SetWhenSelectThisNodeFunctionName(FName InWhenSelectThisNodeFunctionName)
 {
     WhenSelectThisNodeFunctionName = InWhenSelectThisNodeFunctionName;
+}
+
+#endif
+
+FName UDialogueGraphNode::GetWhenSelectThisNodeFunctionName() const
+{
+    return WhenSelectThisNodeFunctionName;
 }

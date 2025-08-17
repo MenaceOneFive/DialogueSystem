@@ -1,7 +1,9 @@
 #include "Graph/Slate/PropertyEditor/DialogueLineCreationPromptDetailViewModel.h"
 
 #include "GenAI/ChatSession/DialogueLineAIChatSession.h"
+#include "Graph/DialogueGraph.h"
 #include "Graph/DialogueGraphAssetFactory.h"
+#include "Graph/Node/DialogueEdGraphDialogueLineNode.h"
 #include "Graph/Node/DialogueEdGraphNode.h"
 #include "Json/JsonUtil.h"
 

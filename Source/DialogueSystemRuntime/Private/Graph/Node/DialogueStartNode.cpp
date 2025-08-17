@@ -1,7 +1,7 @@
 #include "Graph/Node/DialogueStartNode.h"
 #include "Graph/DialogueGraphVisitor.h"
 
-void UDialogueStartNode::Accept(TObjectPtr<IRuntimeDialogueGraphVisitor> Visitor) const
+void UDialogueStartNode::Accept(TScriptInterface<IRuntimeDialogueGraphVisitor> Visitor) const
 {
     Visitor->VisitStartNode(this);
 }

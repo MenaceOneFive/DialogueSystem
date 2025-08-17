@@ -2,7 +2,7 @@
 #include "DialogueGraphVisitor.generated.h"
 
 class IDialoguePositionController;
-class UDialogueEventNode;
+class UDialogueCustomNode;
 class UDialogueEndNode;
 class UDialogueSelectionNode;
 class UDialogueGraphNode;
@@ -10,7 +10,7 @@ class UDialoguePlayerInstance;
 class IDialoguePlayer;
 class ISectionStack;
 class UDialogueStartNode;
-class UDialogueSceneNode;
+class UDialogueLineNode;
 
 /**
  * 
@@ -80,7 +80,7 @@ public:
     /// 노드에 연결된 LevelSequence를 가져와 SectionStack에 추가하고 재생합니다.
     /// </summary>
     /// <param name="SceneNode">처리할 씬 노드 인스턴스</param>
-    virtual void VisitSceneNode(const TObjectPtr<const UDialogueSceneNode>& SceneNode) = 0;
+    virtual void VisitSceneNode(const TObjectPtr<const UDialogueLineNode>& SceneNode) = 0;
 
     /// <summary>
     /// 종료 노드를 방문하고 처리하는 메서드
@@ -98,5 +98,5 @@ public:
     /// 이벤트 실행 후 일반적으로 다음 노드로 이동합니다.
     /// </summary>
     /// <param name="ScriptNode">처리할 이벤트 노드 인스턴스</param>
-    virtual void VisitEventNode(const TObjectPtr<const UDialogueEventNode>& ScriptNode) = 0;
+    virtual void VisitCustomNode(const TObjectPtr<const UDialogueCustomNode>& ScriptNode) = 0;
 };

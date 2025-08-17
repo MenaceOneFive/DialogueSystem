@@ -48,7 +48,10 @@ class DIALOGUESYSTEMRUNTIME_API IWhenSelectThisNode
 
 public: // 노드 선택 이벤트 관련 메서드
     virtual FName GetWhenSelectThisNodeFunctionName() const = 0;
+
+#if WITH_EDITORONLY_DATA
     virtual void SetWhenSelectThisNodeFunctionName(FName InWhenSelectThisNodeFunctionName = NAME_None) = 0;
+#endif
 };
 
 UINTERFACE()
@@ -63,5 +66,11 @@ class DIALOGUESYSTEMRUNTIME_API ICanSelectThisNode
 
 public: // 노드 선택 이벤트 관련 메서드
     virtual FName GetCanSelectThisNodeFunctionName() const = 0;
+    virtual FText GetSelectionName() const = 0;
+    virtual FText GetDefaultSelectionName() const = 0;
+
+#if WITH_EDITORONLY_DATA
     virtual void SetCanSelectThisNodeFunctionName(FName InCanSelectThisNodeFunctionName = NAME_None) = 0;
+    virtual void SetSelectionName(FText& InSelectionName) = 0;
+#endif
 };

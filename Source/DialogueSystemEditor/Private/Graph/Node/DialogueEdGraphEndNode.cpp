@@ -1,6 +1,13 @@
 #include "Graph/Node/DialogueEdGraphEndNode.h"
 #include "EdGraph/EdGraph.h"
-#include "Graph/DialogueEdGraphVisitor.h"
+#include "Graph/Node/DialogueEndNode.h"
+#include "Visitor/AbstractDialogueEdGraphVisitor.h"
+
+UDialogueEdGraphEndNode::UDialogueEdGraphEndNode()
+{
+    DialogueSetting.bShouldShowCursor = false;
+    DialogueSetting.EFocusMode        = EFocusMode::Game;
+}
 
 FText UDialogueEdGraphEndNode::GetNodeTitle(ENodeTitleType::Type TitleType) const
 {
@@ -19,22 +26,13 @@ void UDialogueEdGraphEndNode::Accept(FAbstractDialogueEdGraphVisitor* Visitor)
     Visitor->VisitEndNode(this);
 }
 
+void UDialogueEdGraphEndNode::CopyTo(const TObjectPtr<UDialogueEndNode>& EndNode) const
+{
+    EndNode->SetWhenSelectThisNodeFunctionName(GetWhenSelectThisNodeFunctionName());
+    EndNode->SetDialogueSetting(DialogueSetting);
+}
+
 TArray<TObjectPtr<const UDialogueEdGraphNode>> UDialogueEdGraphEndNode::GetPrevNodes() const
 {
-    const auto InputPin = Algo::FindByPredicate(Pins, [](const UEdGraphPin* Pin)
-    {
-        return Pin->Direction == EGPD_Input;
-    });
-
-    checkf(InputPin, TEXT("InputPin은 무조건 존재해야 합니다."))
-
-    // 한 핀에 들어 올 수 있는 입력은 여러개일 수 있다.
-    TArray<TObjectPtr<const UDialogueEdGraphNode>> Output;
-
-    // 입력핀과 연결되어 있는 핀들의 소유주를 목록화 해서 반환
-    Algo::Transform((*InputPin)->LinkedTo, Output, [](const UEdGraphPin* Pin)
-    {
-        return Cast<UDialogueEdGraphNode>(Pin->GetOwningNode());
-    });
-    return Output;
+    return ::GetPrevNodes<ThisClass>(this);
 }
