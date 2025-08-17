@@ -4,13 +4,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Widget/DialoguePlayerUIRoot.h"
 #include "DialogueUIComponent.generated.h"
 
 class UDialogueRuntimePlayer;
 class UDialogueSelectionItem;
 class IDialogueSelectionContainerWidget;
 class UDialogueGraphNode;
-class UDialogueSceneNode;
+class UDialogueLineNode;
 class IRuntimeDialogueGraphVisitor;
 class IDialogueSubtitleWidget;
 
@@ -142,6 +143,88 @@ public:
 
     UFUNCTION(BlueprintCallable)
     void HideCursor();
+
+public: // 입력 바인딩 API (UI Root로 위임)
+    /// <summary>
+    /// 키 다운 입력 바인딩을 추가합니다.
+    /// <param name="Key">바인드할 키</param>
+    /// <param name="InEvent">호출될 동적 델리게이트(파라미터 없음)</param>
+    /// </summary>
+    UFUNCTION(BlueprintCallable)
+    void BindKeyDownEvent(FKey Key, FDialoguePlayerKeyboardEvent InEvent) const;
+
+    /// <summary>
+    /// 키 업 입력 바인딩을 추가합니다.
+    /// <param name="Key">바인드할 키</param>
+    /// <param name="InEvent">호출될 동적 델리게이트(파라미터 없음)</param>
+    /// </summary>
+    UFUNCTION(BlueprintCallable)
+    void BindKeyUpEvent(FKey Key, FDialoguePlayerKeyboardEvent InEvent) const;
+
+    /// <summary>
+    /// 마우스 버튼 다운 입력 바인딩을 추가합니다.
+    /// <param name="MouseButton">바인드할 마우스 버튼</param>
+    /// <param name="InEvent">호출될 동적 델리게이트(파라미터: InMouseEvent)</param>
+    /// </summary>
+    UFUNCTION(BlueprintCallable)
+    void BindMouseButtonDownEvent(FKey MouseButton, FDialoguePlayerUIMouseEvent InEvent) const;
+
+    /// <summary>
+    /// 마우스 버튼 업 입력 바인딩을 추가합니다.
+    /// <param name="MouseButton">바인드할 마우스 버튼</param>
+    /// <param name="InEvent">호출될 동적 델리게이트(파라미터: InMouseEvent)</param>
+    /// </summary>
+    UFUNCTION(BlueprintCallable)
+    void BindMouseButtonUpEvent(FKey MouseButton, FDialoguePlayerUIMouseEvent InEvent) const;
+
+    /// <summary>
+    /// 마우스 버튼 더블 클릭 입력 바인딩을 추가합니다.
+    /// <param name="MouseButton">바인드할 마우스 버튼</param>
+    /// <param name="InEvent">호출될 동적 델리게이트(파라미터: InMouseEvent)</param>
+    /// </summary>
+    UFUNCTION(BlueprintCallable)
+    void BindMouseButtonDoubleClickEvent(FKey MouseButton, FDialoguePlayerUIMouseEvent InEvent) const;
+
+    /// <summary>
+    /// 키 다운 바인딩을 전부 제거합니다.
+    /// <param name="Key">해제할 키</param>
+    /// </summary>
+    UFUNCTION(BlueprintCallable)
+    void UnbindKeyDownEvent(FKey Key) const;
+
+    /// <summary>
+    /// 키 업 바인딩을 전부 제거합니다.
+    /// <param name="Key">해제할 키</param>
+    /// </summary>
+    UFUNCTION(BlueprintCallable)
+    void UnbindKeyUpEvent(FKey Key) const;
+
+    /// <summary>
+    /// 해당 마우스 버튼의 다운 바인딩을 전부 제거합니다.
+    /// <param name="MouseButton">해제할 마우스 버튼</param>
+    /// </summary>
+    UFUNCTION(BlueprintCallable)
+    void UnbindMouseButtonDownEvent(FKey MouseButton) const;
+
+    /// <summary>
+    /// 해당 마우스 버튼의 업 바인딩을 전부 제거합니다.
+    /// <param name="MouseButton">해제할 마우스 버튼</param>
+    /// </summary>
+    UFUNCTION(BlueprintCallable)
+    void UnbindMouseButtonUpEvent(FKey MouseButton) const;
+
+    /// <summary>
+    /// 해당 마우스 버튼의 더블 클릭 바인딩을 전부 제거합니다.
+    /// <param name="MouseButton">해제할 마우스 버튼</param>
+    /// </summary>
+    UFUNCTION(BlueprintCallable)
+    void UnbindMouseButtonDoubleClickEvent(FKey MouseButton) const;
+
+    /// <summary>
+    /// 모든 입력 바인딩을 초기화합니다.
+    /// </summary>
+    UFUNCTION(BlueprintCallable)
+    void ClearAllBindings() const;
 
 protected:
     // Called when the game starts
