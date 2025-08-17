@@ -244,7 +244,6 @@ void UDialogueUIComponent::HideCursor()
     RootWidget->GetRootWidget()->SetCursor(EMouseCursor::Type::None);
 }
 
-
 void UDialogueUIComponent::BindKeyDownEvent(FKey Key, FDialoguePlayerKeyboardEvent InEvent) const
 {
     // 루트 위젯이 구현 클래스인 경우에만 위임
