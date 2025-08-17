@@ -19,7 +19,7 @@ TSharedPtr<FSubtitleParam> FSubtitleParam::CreateSubtitleWithCharacterName(const
 
 TSharedPtr<FSubtitleParam> FSubtitleParam::CreateSubtitle(const FString& DialogueLine)
 {
-    return MakeShared<FSubtitleParam>(EType::WithCharacterName, "", DialogueLine);
+    return MakeShared<FSubtitleParam>(EType::NoCharacterName, "", DialogueLine);
 }
 
 FSubtitleParam::EType FSubtitleParam::GetType() const
@@ -73,14 +73,18 @@ void UDialogueUIComponent::BeginPlay()
     Super::BeginPlay();
 
     const auto Pawn = Cast<APawn>(GetOwner());
+    checkf(Pawn, TEXT("UDialogueUIComponent::BeginPlay: Owner를 APawn으로 캐스팅할 수 없습니다."));
 
-    const auto PlayerController = Cast<APlayerController>(Pawn->GetController());
+    const auto PlayerController = Pawn ? Cast<APlayerController>(Pawn->GetController()) : nullptr;
+    checkf(PlayerController, TEXT("UDialogueUIComponent::BeginPlay: 플레이어 컨트롤러를 찾을 수 없습니다."));
+
+    // RootWidgetClass가 설정되어 있는지 사전 검증
+    checkf(RootWidgetClass, TEXT("UDialogueUIComponent::BeginPlay: RootWidgetClass가 설정되지 않았습니다."));
 
     // 위젯을 초기화
-
     RootWidget = CreateWidget<UUserWidget>(PlayerController, RootWidgetClass);
-    RootWidget->AddToPlayerScreen();
     checkf(RootWidget, TEXT("RootWidget의 CreateWidget에 실패했습니다."));
+    RootWidget->AddToPlayerScreen();
 
     if ( RootWidget->Implements<UDialoguePlayerUIRoot>() )
     {
@@ -182,15 +186,15 @@ void UDialogueUIComponent::SetSelectionItem(const TArray<UDialogueSelectionItem*
         }
         if ( Num > 5 )
         {
-            IDialogueSelectionContainerWidget::Execute_Set_9_00_SelectionItem(SelectionWidget.GetObject(), SelectionItems[4]);
+            IDialogueSelectionContainerWidget::Execute_Set_9_00_SelectionItem(SelectionWidget.GetObject(), SelectionItems[5]);
         }
         if ( Num > 6 )
         {
-            IDialogueSelectionContainerWidget::Execute_Set_10_30_SelectionItem(SelectionWidget.GetObject(), SelectionItems[5]);
+            IDialogueSelectionContainerWidget::Execute_Set_10_30_SelectionItem(SelectionWidget.GetObject(), SelectionItems[6]);
         }
         if ( Num > 7 )
         {
-            IDialogueSelectionContainerWidget::Execute_Set_12_00_SelectionItem(SelectionWidget.GetObject(), SelectionItems[6]);
+            IDialogueSelectionContainerWidget::Execute_Set_12_00_SelectionItem(SelectionWidget.GetObject(), SelectionItems[7]);
         }
     }
 }
@@ -238,6 +242,95 @@ void UDialogueUIComponent::ShowCursor()
 void UDialogueUIComponent::HideCursor()
 {
     RootWidget->GetRootWidget()->SetCursor(EMouseCursor::Type::None);
+}
+
+void UDialogueUIComponent::BindKeyDownEvent(FKey Key, FDialoguePlayerKeyboardEvent InEvent) const
+{
+    // 루트 위젯이 구현 클래스인 경우에만 위임
+    if (const auto Root = Cast<UDialoguePlayerUIRootImpl>(RootWidget))
+    {
+        Root->BindKeyDownEvent(Key, InEvent);
+    }
+}
+
+void UDialogueUIComponent::BindKeyUpEvent(FKey Key, FDialoguePlayerKeyboardEvent InEvent) const
+{
+    if (const auto Root = Cast<UDialoguePlayerUIRootImpl>(RootWidget))
+    {
+        Root->BindKeyUpEvent(Key, InEvent);
+    }
+}
+
+void UDialogueUIComponent::BindMouseButtonDownEvent(FKey MouseButton, FDialoguePlayerUIMouseEvent InEvent) const
+{
+    if (const auto Root = Cast<UDialoguePlayerUIRootImpl>(RootWidget))
+    {
+        Root->BindMouseButtonDownEvent(MouseButton, InEvent);
+    }
+}
+
+void UDialogueUIComponent::BindMouseButtonUpEvent(FKey MouseButton, FDialoguePlayerUIMouseEvent InEvent) const
+{
+    if (const auto Root = Cast<UDialoguePlayerUIRootImpl>(RootWidget))
+    {
+        Root->BindMouseButtonUpEvent(MouseButton, InEvent);
+    }
+}
+
+void UDialogueUIComponent::BindMouseButtonDoubleClickEvent(FKey MouseButton, FDialoguePlayerUIMouseEvent InEvent) const
+{
+    if (const auto Root = Cast<UDialoguePlayerUIRootImpl>(RootWidget))
+    {
+        Root->BindMouseButtonDoubleClickEvent(MouseButton, InEvent);
+    }
+}
+
+void UDialogueUIComponent::UnbindKeyDownEvent(FKey Key) const
+{
+    if (const auto Root = Cast<UDialoguePlayerUIRootImpl>(RootWidget))
+    {
+        Root->UnbindKeyDownEvent(Key);
+    }
+}
+
+void UDialogueUIComponent::UnbindKeyUpEvent(FKey Key) const
+{
+    if (const auto Root = Cast<UDialoguePlayerUIRootImpl>(RootWidget))
+    {
+        Root->UnbindKeyUpEvent(Key);
+    }
+}
+
+void UDialogueUIComponent::UnbindMouseButtonDownEvent(FKey MouseButton) const
+{
+    if (const auto Root = Cast<UDialoguePlayerUIRootImpl>(RootWidget))
+    {
+        Root->UnbindMouseButtonDownEvent(MouseButton);
+    }
+}
+
+void UDialogueUIComponent::UnbindMouseButtonUpEvent(FKey MouseButton) const
+{
+    if (const auto Root = Cast<UDialoguePlayerUIRootImpl>(RootWidget))
+    {
+        Root->UnbindMouseButtonUpEvent(MouseButton);
+    }
+}
+
+void UDialogueUIComponent::UnbindMouseButtonDoubleClickEvent(FKey MouseButton) const
+{
+    if (const auto Root = Cast<UDialoguePlayerUIRootImpl>(RootWidget))
+    {
+        Root->UnbindMouseButtonDoubleClickEvent(MouseButton);
+    }
+}
+
+void UDialogueUIComponent::ClearAllBindings() const
+{
+    if (const auto Root = Cast<UDialoguePlayerUIRootImpl>(RootWidget))
+    {
+        Root->ClearAllBindings();
+    }
 }
 
 FString UDialogueUIComponent::GetSubtitleText() const
