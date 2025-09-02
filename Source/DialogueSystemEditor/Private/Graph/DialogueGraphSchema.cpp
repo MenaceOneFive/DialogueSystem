@@ -20,10 +20,10 @@
 /// </summary>
 #pragma region SchemaContextMenuActions
 
-UEdGraphNode* FDialogueGraphSchema_SpawnNode::PerformAction(UEdGraph* ParentGraph,
-                                                            UEdGraphPin* FromPin,
+UEdGraphNode* FDialogueGraphSchema_SpawnNode::PerformAction(UEdGraph*       ParentGraph,
+                                                            UEdGraphPin*    FromPin,
                                                             const FVector2D Location,
-                                                            bool bSelectNewNode)
+                                                            bool            bSelectNewNode)
 {
     const FScopedTransaction Transaction(LOCTEXT("AddDialogueNode", "Add a new DialogueNode to graph"));
 
@@ -94,7 +94,7 @@ void UDialogueGraphSchema::GetGraphContextActions(FGraphContextMenuBuilder& Cont
     ContextMenuBuilder.AddAction(SpawnSelectDialogueAction);
 
     FDialogueSystemEditorModule& Module = FModuleManager::Get().GetModuleChecked<FDialogueSystemEditorModule>("DialogueSystemEditor");
-    for (auto Definitions = Module.GetCustomNodeManager()->GetAllCustomNodeDefinitions();
+    for (auto        Definitions = Module.GetCustomNodeManager()->GetAllCustomNodeDefinitions();
          const auto& NodeDefinition : Definitions)
     {
         const TSharedRef<FDialogueGraphSchema_SpawnNode> SpawnCustomDialogueAction =
@@ -113,7 +113,7 @@ void UDialogueGraphSchema::GetGraphContextActions(FGraphContextMenuBuilder& Cont
 /// </summary>
 /// <param name="Menu">컨텍스트 메뉴</param>
 /// <param name="Context">컨텍스트</param>
-void UDialogueGraphSchema::GetContextMenuActions(UToolMenu* Menu,
+void UDialogueGraphSchema::GetContextMenuActions(UToolMenu*                    Menu,
                                                  UGraphNodeContextMenuContext* Context) const
 {
     // Context에 선택한 그래프, 노드, 핀에 대한 참조가 들어 있다.
@@ -132,17 +132,17 @@ void UDialogueGraphSchema::GetContextMenuActions(UToolMenu* Menu,
 
         // Custom delete commands
         const FToolMenuEntry DeleteConnectionEntry = FToolMenuEntry::InitMenuEntry(
-                FDialogueGraphEditorCommands::Get().DeleteAllNodeConnection,
-                NSLOCTEXT("DialogueGraphEditor", "DeleteConnection", "Delete Connection"),
-                NSLOCTEXT("DialogueGraphEditor", "DeleteConnectionTooltip", "Delete the selected connection between nodes")
-                );
+                                                                                   FDialogueGraphEditorCommands::Get().DeleteAllNodeConnection,
+                                                                                   NSLOCTEXT("DialogueGraphEditor", "DeleteConnection", "Delete Connection"),
+                                                                                   NSLOCTEXT("DialogueGraphEditor", "DeleteConnectionTooltip", "Delete the selected connection between nodes")
+                                                                                  );
         Section.AddEntry(DeleteConnectionEntry);
 
         const FToolMenuEntry DeleteNodeEntry = FToolMenuEntry::InitMenuEntry(
-                FDialogueGraphEditorCommands::Get().DeleteSelectedNode,
-                NSLOCTEXT("DialogueGraphEditor", "DeleteNode", "Delete Node"),
-                NSLOCTEXT("DialogueGraphEditor", "DeleteNodeTooltip", "Delete the selected node")
-                );
+                                                                             FDialogueGraphEditorCommands::Get().DeleteSelectedNode,
+                                                                             NSLOCTEXT("DialogueGraphEditor", "DeleteNode", "Delete Node"),
+                                                                             NSLOCTEXT("DialogueGraphEditor", "DeleteNodeTooltip", "Delete the selected node")
+                                                                            );
         Section.AddEntry(DeleteNodeEntry);
     }
 
@@ -219,12 +219,12 @@ const FPinConnectionResponse UDialogueGraphSchema::CanCreateConnection(const UEd
     return ConnectionResponse;
 }
 
-FConnectionDrawingPolicy* UDialogueGraphSchema::CreateConnectionDrawingPolicy(int32 InBackLayerID,
-                                                                              int32 InFrontLayerID,
-                                                                              float InZoomFactor,
-                                                                              const FSlateRect& InClippingRect,
+FConnectionDrawingPolicy* UDialogueGraphSchema::CreateConnectionDrawingPolicy(int32                    InBackLayerID,
+                                                                              int32                    InFrontLayerID,
+                                                                              float                    InZoomFactor,
+                                                                              const FSlateRect&        InClippingRect,
                                                                               FSlateWindowElementList& InDrawElements,
-                                                                              UEdGraph* InGraphObj) const
+                                                                              UEdGraph*                InGraphObj) const
 {
     // 연결선 그리기 정책 생성
     return nullptr;
@@ -244,7 +244,7 @@ void UDialogueGraphSchema::BreakNodeLinks(UEdGraphNode& TargetNode) const
 }
 
 void UDialogueGraphSchema::BreakPinLinks(UEdGraphPin& TargetPin,
-                                         bool bSendsNodeNotification) const
+                                         bool         bSendsNodeNotification) const
 {
     // 핀 링크 해제 로직
     Super::BreakPinLinks(TargetPin, bSendsNodeNotification);
@@ -257,5 +257,6 @@ FLinearColor UDialogueGraphSchema::GetPinTypeColor(const FEdGraphPinType& PinTyp
     // 핀 타입별 색상 정의
     return FLinearColor::White;
 }
+
 
 #undef LOCTEXT_NAMESPACE

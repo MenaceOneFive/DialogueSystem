@@ -11,7 +11,7 @@ FName UDialogueGraphDirector::CanSelectThisNodeSignatureName  = "CanSelectThisNo
 FName UDialogueGraphDirector::WhenSelectThisNodeSignatureName = "WhenSelectThisNodeSignature";
 #endif
 
-bool UDialogueGraphDirector::CanVisitNode(const TObjectPtr<UFunction>& Function,
+bool UDialogueGraphDirector::CanVisitNode(const TObjectPtr<UFunction>&                Function,
                                           const TObjectPtr<const UDialogueGraphNode>& NextNodeToVisit)
 {
     checkf(IsValid(Function), TEXT("Function은 nullptr일 수 없습니다."))
@@ -24,7 +24,7 @@ bool UDialogueGraphDirector::CanVisitNode(const TObjectPtr<UFunction>& Function,
     return Result;
 }
 
-void UDialogueGraphDirector::WhenVisitThisNode(const TObjectPtr<UFunction>& Function,
+void UDialogueGraphDirector::WhenVisitThisNode(const TObjectPtr<UFunction>&                Function,
                                                const TObjectPtr<const UDialogueGraphNode>& PrevNode,
                                                const TObjectPtr<const UDialogueGraphNode>& CurrentNode)
 {
@@ -33,7 +33,7 @@ void UDialogueGraphDirector::WhenVisitThisNode(const TObjectPtr<UFunction>& Func
     // 시작 노드도 이 메서드를 사용하므로 PrevNode는 nullptr이 될 수 있다.
     checkf(IsValid(CurrentNode), TEXT("CurrentNode는 nullptr일 수 없습니다."))
 
-    if ( !PrevNode )
+    if (!PrevNode)
     {
         UE_LOG(LogTemp, Log, TEXT("WhenVisitThisNode(PrevNode : nullptr, CurrentNode : %s)"), *CurrentNode->GetName())
     }
@@ -43,4 +43,45 @@ void UDialogueGraphDirector::WhenVisitThisNode(const TObjectPtr<UFunction>& Func
     }
 
     InvokeTwoInputBlueprintFunction(Function, PrevNode.Get(), CurrentNode.Get());
+}
+
+bool UDialogueGraphDirector::WasNodeVisited(const UDialogueGraphNode* GraphNode) const
+{
+    return VisitedNodes.Contains(GraphNode);
+}
+
+void UDialogueGraphDirector::MarkNodeAsVisited(const UDialogueGraphNode* GraphNode)
+{
+    if (!VisitedNodes.Contains(GraphNode))
+    {
+        VisitedNodes.Add(GraphNode);
+    }
+}
+
+void UDialogueGraphDirector::MarkNodeAsNotVisited(const UDialogueGraphNode* GraphNode)
+{
+    if (VisitedNodes.Contains(GraphNode))
+    {
+        VisitedNodes.Remove(GraphNode);
+    }
+}
+
+UAbilitySystemComponent* UDialogueGraphDirector::GetPlayerASC() const
+{
+    return PlayerASC;
+}
+
+void UDialogueGraphDirector::SetPlayerASC(UAbilitySystemComponent* InPlayerASC)
+{
+    this->PlayerASC = InPlayerASC;
+}
+
+ACharacter* UDialogueGraphDirector::GetPlayerCharacter() const
+{
+    return PlayerCharacter;
+}
+
+void UDialogueGraphDirector::SetPlayerCharacter(ACharacter* InPlayerCharacter)
+{
+    this->PlayerCharacter = InPlayerCharacter;
 }

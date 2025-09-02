@@ -6,6 +6,7 @@
 #include "EdGraphUtilities.h"
 #include "GraphEditor.h"
 #include "PropertyEditorModule.h"
+#include "SGraphPanel.h"
 #include "Blueprint/BlueprintExtension.h"
 #include "Character/DialogueCharacterAsset.h"
 #include "EdGraph/EdGraph.h"
@@ -66,10 +67,10 @@ FDialogueGraphEditor::~FDialogueGraphEditor()
     if (DialogueGraphAsset->IsValidLowLevel())
     {
         auto Extension = DialogueGraphAsset->GetBlueprintInstance()->GetExtensions().FindByPredicate(
-                [](TObjectPtr<UBlueprintExtension> Extention)
-                {
-                    return Extention->IsA<UDialogueGraphBlueprintExtension>();
-                });
+                                                                                                     [](TObjectPtr<UBlueprintExtension> Extention)
+                                                                                                     {
+                                                                                                         return Extention->IsA<UDialogueGraphBlueprintExtension>();
+                                                                                                     });
         if (Extension)
         {
             DialogueGraphAsset->GetBlueprintInstance()->RemoveExtension(*Extension);
@@ -77,9 +78,9 @@ FDialogueGraphEditor::~FDialogueGraphEditor()
     }
 }
 
-void FDialogueGraphEditor::InitDialogueGraphEditor(const EToolkitMode::Type Mode,
+void FDialogueGraphEditor::InitDialogueGraphEditor(const EToolkitMode::Type        Mode,
                                                    const TSharedPtr<IToolkitHost>& InitToolkitHost,
-                                                   UDialogueGraph* InDialogueGraph)
+                                                   UDialogueGraph*                 InDialogueGraph)
 {
     // 그래프 에셋 설정
     DialogueGraphAsset   = InDialogueGraph;
@@ -144,22 +145,22 @@ void FDialogueGraphEditor::InitDialogueGraphEditor(const EToolkitMode::Type Mode
         GraphEditorCommands->MapAction(FGenericCommands::Get().Cut,
                                        FExecuteAction::CreateSP(this, &FDialogueGraphEditor::CutSelectedNodes),
                                        FCanExecuteAction::CreateSP(this, &FDialogueGraphEditor::CanCutNodes)
-                );
+                                      );
 
         GraphEditorCommands->MapAction(FGenericCommands::Get().Copy,
                                        FExecuteAction::CreateSP(this, &FDialogueGraphEditor::CopySelectedNodes),
                                        FCanExecuteAction::CreateSP(this, &FDialogueGraphEditor::CanCopyNodes)
-                );
+                                      );
 
         GraphEditorCommands->MapAction(FGenericCommands::Get().Paste,
                                        FExecuteAction::CreateSP(this, &FDialogueGraphEditor::PasteNodes),
                                        FCanExecuteAction::CreateSP(this, &FDialogueGraphEditor::CanPasteNodes)
-                );
+                                      );
 
         GraphEditorCommands->MapAction(FGenericCommands::Get().Duplicate,
                                        FExecuteAction::CreateSP(this, &FDialogueGraphEditor::DuplicateNodes),
                                        FCanExecuteAction::CreateSP(this, &FDialogueGraphEditor::CanDuplicateNodes)
-                );
+                                      );
     }
 
 
@@ -178,9 +179,9 @@ void FDialogueGraphEditor::InitDialogueGraphEditor(const EToolkitMode::Type Mode
                        ->SetSizeCoefficient(0.3f)
                        ->AddTab(DialogueGraphEditorTabs::DetailsID, ETabState::OpenedTab)
                        ->AddTab(FName("YourWidgetTabID"), ETabState::OpenedTab)
-                           )
-                     )
-                    );
+                        )
+                  )
+            );
 
     // 에셋 에디터 초기화
     constexpr bool bCreateDefaultStandaloneMenu = true;
@@ -263,7 +264,7 @@ TSharedRef<SDockTab> FDialogueGraphEditor::PropertyTabSpawner(const FSpawnTabArg
 {
     // 속성 에디터 생성
     FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
-    FDetailsViewArgs DetailsViewArgs;
+    FDetailsViewArgs       DetailsViewArgs;
     DetailsViewArgs.bUpdatesFromSelection = false;
     DetailsViewArgs.bLockable             = false;
     DetailsViewArgs.bAllowSearch          = true;
@@ -271,7 +272,7 @@ TSharedRef<SDockTab> FDialogueGraphEditor::PropertyTabSpawner(const FSpawnTabArg
     DetailsViewArgs.bHideSelectionTip     = false;
     PropertyEditor                        = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
 
-#pragma region DetailTypeCustomization // DetailTypeCustomization를 등록
+    #pragma region DetailTypeCustomization // DetailTypeCustomization를 등록
 
     // 프롬프트 
     PropertyEditor->RegisterInstancedCustomPropertyTypeLayout(FDialogueLineCreationPrompt::StaticStruct()->GetFName(),
@@ -297,7 +298,7 @@ TSharedRef<SDockTab> FDialogueGraphEditor::PropertyTabSpawner(const FSpawnTabArg
     // 종료노드 (기본 Node용 디테일 사용)
     PropertyEditor->RegisterInstancedCustomPropertyLayout(UDialogueEdGraphEndNode::StaticClass(), FOnGetDetailCustomizationInstance::CreateStatic(&FDialogueNodeDetail::MakeInstance));
 
-#pragma endregion
+    #pragma endregion
 
     // 처음 편집할 데이터
     PropertyEditor->SetObject(DialogueGraphAsset);
@@ -422,7 +423,7 @@ void FDialogueGraphEditor::OnDeleteKeyPressed() const
 /// </summary>
 #pragma region 위젯_팩토리_메서드
 
-void FDialogueGraphEditor::OnBlueprintRecompiled(UBlueprint* Blueprint,
+void FDialogueGraphEditor::OnBlueprintRecompiled(UBlueprint*     Blueprint,
                                                  UDialogueGraph* Asset)
 {
     check(Asset->IsValidLowLevel())
@@ -504,9 +505,9 @@ void FDialogueGraphEditor::OnCreateComment() const
 
 void FDialogueGraphEditor::GenerateRuntimeGraph() const
 {
-    const auto GraphData          = Cast<UDialogueEdGraphAssetData>(DialogueGraphAsset->AssetUserData);
-    UDialogueEdGraph* EditorGraph = GraphData->DialogueEdGraph;
-    UDialogueGraph* DialogueGraph = DialogueGraphAsset;
+    const auto        GraphData     = Cast<UDialogueEdGraphAssetData>(DialogueGraphAsset->AssetUserData);
+    UDialogueEdGraph* EditorGraph   = GraphData->DialogueEdGraph;
+    UDialogueGraph*   DialogueGraph = DialogueGraphAsset;
 
     // 기존의 런타임 노드들을 제거한다.
     DialogueGraph->Clear();
@@ -662,7 +663,7 @@ bool FDialogueGraphEditor::CanDeleteAllNodeConnection() const
 }
 
 
-void FDialogueGraphEditor::SetupGraphEditorEvents(UDialogueEdGraph* InGraph,
+void FDialogueGraphEditor::SetupGraphEditorEvents(UDialogueEdGraph*                 InGraph,
                                                   SGraphEditor::FGraphEditorEvents& InEvents)
 {
     // 노드 선택 변경 이벤트 설정
@@ -715,8 +716,8 @@ void FDialogueGraphEditor::OnDoubleClicked() const
 
 void FDialogueGraphEditor::RemoveSelectedNodesFrom(const TSharedPtr<SGraphEditor>& GraphEditor) const
 {
-    UEdGraph* FocusedGraph = GraphEditor->GetCurrentGraph();
-    TSet<UObject*> Objects = GraphEditor->GetSelectedNodes();
+    UEdGraph*      FocusedGraph = GraphEditor->GetCurrentGraph();
+    TSet<UObject*> Objects      = GraphEditor->GetSelectedNodes();
     for (UObject* SelectedNode : Objects)
     {
         if (SelectedNode->IsA<UDialogueEdGraphStartNode>())
@@ -784,7 +785,7 @@ void FDialogueGraphEditor::PasteNodes() const
     if (const TSharedPtr<SGraphEditor> FocusedGraphEd = FocusedGraphEdPtr.Pin())
     {
         const FVector2D PasteLocation = FocusedGraphEd->GetCurrentGraph()->GetGoodPlaceForNewNode();
-        UEdGraph* EdGraph             = FocusedGraphEd->GetCurrentGraph();
+        UEdGraph*       EdGraph       = FocusedGraphEd->GetCurrentGraph();
 
         const FScopedTransaction Transaction(LOCTEXT("PasteNode", "Paste Node from Clipboard"));
         EdGraph->Modify();

@@ -30,19 +30,19 @@ TSharedRef<IDetailCustomization> FDialogueGraphDetail::MakeInstance()
 
 void FDialogueGraphDetail::CreateRootWidget(IDetailLayoutBuilder& DetailBuilder)
 {
-    DetailBuilder.EditCategory(FName("asdf"))
-                 .AddCustomRow(FText::FromString("asdf"))
+    DetailBuilder.EditCategory(FName(TEXT("스크립팅")))
+                 .AddCustomRow(FText::FromString(TEXT("스크립팅")))
     [
         SNew(SVerticalBox)
         + SVerticalBox::Slot()
         [
             SNew(SButton)
-            .Text(FText::FromString(TEXT("Blueprint 호출")))
-            .OnClicked_Raw(this, &FDialogueGraphDetail::Foo)
+                        .Text(FText::FromString(TEXT("Blueprint 에디터 열기")))
+                        .OnClicked_Raw(this, &FDialogueGraphDetail::OpenBlueprintEditor)
         ]
     ];
-    // 연결된 MovieScene 에셋을 여는 버튼
-    CreateRelatedMovieSceneWidget(DetailBuilder);
+    // TODO: 정말 이 호출이 여기에 있어야 하는지 재평가 // 연결된 MovieScene 에셋을 여는 버튼
+    // CreateRelatedMovieSceneWidget(DetailBuilder);
 
     // 전체 노드의 개수를 반환하는 위젯
     CreateTheNumberOfNodeWidget(DetailBuilder);
@@ -68,13 +68,13 @@ void FDialogueGraphDetail::CreateRelatedMovieSceneWidget(IDetailLayoutBuilder& D
                  .WholeRowContent()
     [
         SAssignNew(OpenRelatedMovieSceneButton, SButton)
-        .HAlign(HAlign_Fill)
-        .VAlign(VAlign_Fill)
-        .Text(FText::FromString(TEXT("연결된 MovieScene열기")))
-        .OnClicked_Lambda([]
-        {
-            return FReply::Handled();
-        })
+                                                       .HAlign(HAlign_Fill)
+                                                       .VAlign(VAlign_Fill)
+                                                       .Text(FText::FromString(TEXT("연결된 MovieScene열기")))
+                                                       .OnClicked_Lambda([]
+                                                        {
+                                                            return FReply::Handled();
+                                                        })
     ];
 }
 
@@ -87,7 +87,7 @@ void FDialogueGraphDetail::CreateTheNumberOfNodeWidget(IDetailLayoutBuilder& Det
             [
                 SNew(STextBlock).Text(FText::FromString(TEXT("전체 노드 수")))
             ]
-            .ValueContent()
+           .ValueContent()
             [
                 SNew(STextBlock).Text(FText::Format(LOCTEXT("NumberOfLineNode", "{0}개"), ViewModel ? ViewModel->CountNode() : 0))
             ];
@@ -102,7 +102,7 @@ void FDialogueGraphDetail::CreateTheNumberOfSelectNodeWidget(IDetailLayoutBuilde
             [
                 SNew(STextBlock).Text(FText::FromString(TEXT("선택 수")))
             ]
-            .ValueContent()
+           .ValueContent()
             [
                 SNew(STextBlock).Text(FText::Format(LOCTEXT("NumberOfLineNode", "{0}개"), ViewModel ? ViewModel->CountSelectNode() : 0))
             ];
@@ -117,7 +117,7 @@ void FDialogueGraphDetail::CreateTheNumberOfLineNodeWidget(IDetailLayoutBuilder&
             [
                 SNew(STextBlock).Text(FText::FromString(TEXT("대사 노드 수")))
             ]
-            .ValueContent()
+           .ValueContent()
             [
                 SNew(STextBlock).Text(FText::Format(LOCTEXT("NumberOfLineNode", "{0}개"), ViewModel ? ViewModel->CountLineNode() : 0))
             ];
@@ -131,27 +131,27 @@ void FDialogueGraphDetail::CreateDescriptionTextBoxWidget(IDetailLayoutBuilder& 
                  .WholeRowContent()
     [
         SAssignNew(DescriptionTextBox, SMultiLineEditableTextBox)
-        .Text(MakeAttributeLambda([this]()
-        {
-            return ViewModel.IsValid() ? FText::FromString(ViewModel->GetDescription()) : FText();
-        }))
-        .OnTextChanged_Lambda([this](const FText& NewText)
-        {
-            if ( ViewModel.IsValid() )
-            {
-                ViewModel->SetDescription(NewText.ToString());
-            }
-        })
+                                                                .Text(MakeAttributeLambda([this]()
+                                                                 {
+                                                                     return ViewModel.IsValid() ? FText::FromString(ViewModel->GetDescription()) : FText();
+                                                                 }))
+                                                                .OnTextChanged_Lambda([this](const FText& NewText)
+                                                                 {
+                                                                     if (ViewModel.IsValid())
+                                                                     {
+                                                                         ViewModel->SetDescription(NewText.ToString());
+                                                                     }
+                                                                 })
     ];
 
-    if ( ViewModel.IsValid() )
+    if (ViewModel.IsValid())
     {
         TWeakPtr<FDialogueGraphDetail> Weak = SharedThis(this);
         ViewModel->SetOnDescriptionChanged(FSimpleDelegate::CreateLambda([Weak]()
         {
-            if ( const auto SharedThis = Weak.Pin();
+            if (const auto SharedThis = Weak.Pin();
                 SharedThis.IsValid() &&
-                SharedThis->DescriptionTextBox.IsValid() )
+                SharedThis->DescriptionTextBox.IsValid())
             {
                 const FText Text = FText::FromString(SharedThis->ViewModel->GetDescription());
                 SharedThis->DescriptionTextBox->SetText(Text);
@@ -168,27 +168,27 @@ void FDialogueGraphDetail::CreateMemoTextBoxWidget(IDetailLayoutBuilder& DetailB
                  .WholeRowContent()
     [
         SAssignNew(MemoTextBox, SMultiLineEditableTextBox)
-        .Text(MakeAttributeLambda([this]()
-        {
-            return ViewModel.IsValid() ? FText::FromString(ViewModel->GetMemo()) : FText();
-        }))
-        .OnTextChanged_Lambda([this](const FText& NewText)
-        {
-            if ( ViewModel.IsValid() )
-            {
-                ViewModel->SetMemo(NewText.ToString());
-            }
-        })
+                                                         .Text(MakeAttributeLambda([this]()
+                                                          {
+                                                              return ViewModel.IsValid() ? FText::FromString(ViewModel->GetMemo()) : FText();
+                                                          }))
+                                                         .OnTextChanged_Lambda([this](const FText& NewText)
+                                                          {
+                                                              if (ViewModel.IsValid())
+                                                              {
+                                                                  ViewModel->SetMemo(NewText.ToString());
+                                                              }
+                                                          })
     ];
 
-    if ( ViewModel.IsValid() )
+    if (ViewModel.IsValid())
     {
         TWeakPtr<FDialogueGraphDetail> Weak = SharedThis(this);
         ViewModel->SetOnDescriptionChanged(FSimpleDelegate::CreateLambda([Weak]()
         {
-            if ( const auto SharedThis = Weak.Pin();
+            if (const auto SharedThis = Weak.Pin();
                 SharedThis.IsValid() &&
-                SharedThis->MemoTextBox.IsValid() )
+                SharedThis->MemoTextBox.IsValid())
             {
                 const FText Text = FText::FromString(SharedThis->ViewModel->GetMemo());
                 SharedThis->MemoTextBox->SetText(Text);
@@ -215,11 +215,11 @@ void FDialogueGraphDetail::CustomizeDetails(IDetailLayoutBuilder& DetailBuilder)
     CreateRootWidget(DetailBuilder);
 }
 
-FReply FDialogueGraphDetail::Foo() const
+FReply FDialogueGraphDetail::OpenBlueprintEditor() const
 {
-    if ( const auto Asset = ViewModel->GetAsset() )
+    if (const auto Asset = ViewModel->GetAsset())
     {
-        if ( const auto BPInstance = Asset->GetBlueprintInstance(); BPInstance->IsValidLowLevel() )
+        if (const auto BPInstance = Asset->GetBlueprintInstance(); BPInstance->IsValidLowLevel())
         {
             FKismetEditorUtilities::BringKismetToFocusAttentionOnObject(BPInstance);
             UE_LOG(LogTemp, Log, TEXT(""));

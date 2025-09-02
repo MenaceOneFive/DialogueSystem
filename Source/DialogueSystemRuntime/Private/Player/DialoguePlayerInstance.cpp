@@ -2,6 +2,7 @@
 
 #include "Player/DialoguePlayerInstance.h"
 
+#include "AbilitySystemInterface.h"
 #include "DialogueSystemRuntimeModule.h"
 #include "LevelSequenceActor.h"
 #include "LevelSequencePlayer.h"
@@ -76,6 +77,18 @@ void UDialogueRuntimePlayer::SetDialogueGraph(const UDialogueGraph* InDialogueGr
     check(Class->IsChildOf(UDialogueGraphDirector::StaticClass()))
 
     DialogueGraphDirector = NewObject<UDialogueGraphDirector>(this, Class, FName("GraphDirectorInstance"), RF_Transient);
+
+    // TODO : 초기화 메서드에서 정확한 인스턴스를 받도록 수정
+    if (auto OwningCharacter = GetTypedOuter<ACharacter>())
+    {
+        DialogueGraphDirector->SetPlayerCharacter(OwningCharacter);
+        // 어빌리티 시스템을 구현한 캐릭터라면 ASC에 대한 참조도 저장
+        if (OwningCharacter->Implements<UAbilitySystemInterface>())
+        {
+            TScriptInterface<IAbilitySystemInterface> IASC = OwningCharacter;
+            DialogueGraphDirector->SetPlayerASC(IASC->GetAbilitySystemComponent());
+        }
+    }
 }
 
 void UDialogueRuntimePlayer::InitializeVisitor()
@@ -164,8 +177,8 @@ void UDialogueRuntimePlayer::VisitSelectionNode(const TObjectPtr<const UDialogue
         {
             continue;
         }
-        FText Name         = GetSelectionName(Node);
-        auto SelectionItem = NewObject<UDialogueSelectionItem>(this);
+        FText Name          = GetSelectionName(Node);
+        auto  SelectionItem = NewObject<UDialogueSelectionItem>(this);
         SelectionItem->Initialize(MakeVisitNextNodeFromSelectionDelegate(SelectionNode, ItemNodeId), CanSelectNode(ItemNodeId));
         SelectionItem->SetSelectionName(Name);
         SelectionItems.Add(SelectionItem);
@@ -187,8 +200,8 @@ void UDialogueRuntimePlayer::VisitSceneNode(const TObjectPtr<const UDialogueLine
 
     /////////////////////////////////////////////////////////////////////////////////
     // 장면에 대한 재생처리
-    const TObjectPtr<ULevelSequencePlayerHolder> Holder = SceneNodeToPlayerHolder[SceneNode];
-    ULevelSequencePlayer* LevelSequencePlayer           = Holder->GetLevelSequencePlayer();
+    const TObjectPtr<ULevelSequencePlayerHolder> Holder              = SceneNodeToPlayerHolder[SceneNode];
+    ULevelSequencePlayer*                        LevelSequencePlayer = Holder->GetLevelSequencePlayer();
     InitializeSequencePlayer(Holder, SceneNode, SceneNode->GetNextNodeID());
 
     ApplySequencePlaybackSetting(LevelSequencePlayer, SceneNode->GetDialogueSetting(), SceneNode->GetSequencePlaySetting());
@@ -246,18 +259,18 @@ void UDialogueRuntimePlayer::VisitCustomNode(const TObjectPtr<const UDialogueCus
 // ReSharper disable once CppMemberFunctionMayBeConst
 void UDialogueRuntimePlayer::InitializePlayers()
 {
-    const auto World                                 = GetWorld();
-    const UGameInstance* GameInstance                = World->GetGameInstance();
-    const UDialoguePlayerRuntimeSubsystem* Subsystem = GameInstance->GetSubsystem<UDialoguePlayerRuntimeSubsystem>();
+    const auto                             World        = GetWorld();
+    const UGameInstance*                   GameInstance = World->GetGameInstance();
+    const UDialoguePlayerRuntimeSubsystem* Subsystem    = GameInstance->GetSubsystem<UDialoguePlayerRuntimeSubsystem>();
 
     for (const UDialogueGraphNode* DialogueNode : DialogueGraph->GetNodes())
     {
         if (DialogueNode->Implements<USequencePlayCapability>())
         {
             TScriptInterface<const ISequencePlayCapability> SceneNode(DialogueNode);
-            const auto LevelSequence  = SceneNode->GetLevelSequenceToPlay();
-            const auto LoadedSequence = LevelSequence.LoadSynchronous();
-            auto PlayerHolder         = Subsystem->RequestNewPlayerInstance();
+            const auto                                      LevelSequence  = SceneNode->GetLevelSequenceToPlay();
+            const auto                                      LoadedSequence = LevelSequence.LoadSynchronous();
+            auto                                            PlayerHolder   = Subsystem->RequestNewPlayerInstance();
             PlayerHolder->Rename(nullptr, this);
             PlayerHolder->SetLevelSequence(LoadedSequence);
             SceneNodeToPlayerHolder.Add(DialogueNode, PlayerHolder);
@@ -469,12 +482,12 @@ void UDialogueRuntimePlayer::ApplyDialogueUISetting(const FDialogueSetting Dialo
 {
     switch (DialogueSetting.EFocusMode)
     {
-    case EFocusMode::UI:
-        FocusOnRootWidget();
-        break;
-    case EFocusMode::Game:
-        UnfocusFromWidget();
-        break;
+        case EFocusMode::UI:
+            FocusOnRootWidget();
+            break;
+        case EFocusMode::Game:
+            UnfocusFromWidget();
+            break;
     }
 
     if (DialogueSetting.bShouldShowCursor)
@@ -503,6 +516,12 @@ void UDialogueRuntimePlayer::WhenVisitThisNode(const TObjectPtr<const UDialogueG
         }
         DialogueGraphDirector->WhenVisitThisNode(Function, InPrevNode, InCurrentNode);
     }
+
+    if (DialogueGraphDirector->WasNodeVisited(InCurrentNode))
+    {
+        UE_LOG(LogTemp, Log, TEXT("이미 방문한 노드입니다."))
+    }
+    DialogueGraphDirector->MarkNodeAsVisited(InCurrentNode);
 }
 
 
@@ -517,7 +536,7 @@ void UDialogueRuntimePlayer::SkipCurrentNode() const
             check(IsValid(CurrentHolder))
             const auto CurrentPlayer = CurrentHolder->GetLevelSequencePlayer();
             check(CurrentPlayer)
-            const FQualifiedFrameTime EndTime = CurrentPlayer->GetEndTime();
+            const FQualifiedFrameTime         EndTime = CurrentPlayer->GetEndTime();
             FMovieSceneSequencePlaybackParams PlaybackParams;
             PlaybackParams.bHasJumped   = true;
             PlaybackParams.Timecode     = EndTime.ToTimecode();

@@ -113,7 +113,7 @@ void UDialoguePlayerUIRootImpl::BindKeyDownEvent(FKey Key, FDialoguePlayerKeyboa
     Delegate.AddLambda([InEvent]() mutable
     {
         // 파라미터 없는 동적 델리게이트 실행
-        InEvent.ExecuteIfBound();
+        (void)InEvent.ExecuteIfBound();
     });
 
 }
@@ -126,7 +126,7 @@ void UDialoguePlayerUIRootImpl::BindKeyUpEvent(FKey Key, FDialoguePlayerKeyboard
     // 블루프린트 동적 델리게이트를 호출하는 람다를 추가한다
     Delegate.AddLambda([InEvent]() mutable
     {
-        InEvent.ExecuteIfBound();
+        (void)InEvent.ExecuteIfBound();
     });
 
 }
@@ -139,7 +139,7 @@ void UDialoguePlayerUIRootImpl::BindMouseButtonDownEvent(FKey MouseButton, FDial
     // 블루프린트 동적 델리게이트를 호출하는 람다를 추가한다
     Delegate.AddLambda([InEvent](const FPointerEvent& E) mutable
     {
-        InEvent.ExecuteIfBound(E);
+        (void)InEvent.ExecuteIfBound(E);
     });
 
 }
@@ -152,7 +152,7 @@ void UDialoguePlayerUIRootImpl::BindMouseButtonUpEvent(FKey MouseButton, FDialog
     // 블루프린트 동적 델리게이트를 호출하는 람다를 추가한다
     Delegate.AddLambda([InEvent](const FPointerEvent& E) mutable
     {
-        InEvent.ExecuteIfBound(E);
+        (void)InEvent.ExecuteIfBound(E);
     });
 
 }
@@ -165,7 +165,7 @@ void UDialoguePlayerUIRootImpl::BindMouseButtonDoubleClickEvent(FKey MouseButton
     // 블루프린트 동적 델리게이트를 호출하는 람다를 추가한다
     Delegate.AddLambda([InEvent](const FPointerEvent& E) mutable
     {
-        InEvent.ExecuteIfBound(E);
+        (void)InEvent.ExecuteIfBound(E);
     });
 
 }
