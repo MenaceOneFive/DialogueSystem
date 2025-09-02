@@ -2,6 +2,7 @@
 
 #include "Subsystem/DialoguePlayerSubsystem.h"
 
+#include "AbilitySystemInterface.h"
 #include "Player/DialoguePlayerInstance.h"
 #include "Player/LevelSequencePlayerPool.h"
 
@@ -12,12 +13,12 @@ void UDialoguePlayerRuntimeSubsystem::Initialize(FSubsystemCollectionBase& Colle
     PlayerResourcePool->InitializeSequencePlayerPool(5);
 }
 
-UDialogueRuntimePlayer* UDialoguePlayerRuntimeSubsystem::CreateDialoguePlayerFromDialogueGraph(UObject* ContextObject,
+UDialogueRuntimePlayer* UDialoguePlayerRuntimeSubsystem::CreateDialoguePlayerFromDialogueGraph(UObject*              ContextObject,
                                                                                                const UDialogueGraph* DialogueGraph)
 {
-    const auto Player = NewObject<UDialogueRuntimePlayer>(ContextObject);
-    Player->SetDialogueGraph(DialogueGraph);
-    return Player;
+    const auto RuntimePlayer = NewObject<UDialogueRuntimePlayer>(ContextObject);
+    RuntimePlayer->SetDialogueGraph(DialogueGraph);
+    return RuntimePlayer;
 }
 
 ULevelSequencePlayerHolder* UDialoguePlayerRuntimeSubsystem::RequestNewPlayerInstance() const

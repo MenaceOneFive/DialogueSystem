@@ -12,6 +12,7 @@ class DIALOGUESYSTEMEDITOR_API FDialogueGraphPanelNodeFactory final : public FGr
 {
 public:
     FDialogueGraphPanelNodeFactory();
+
     virtual ~FDialogueGraphPanelNodeFactory() override;
 
     virtual TSharedPtr<SGraphNode> CreateNode(UEdGraphNode* Node) const override;

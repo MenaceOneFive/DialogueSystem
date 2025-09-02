@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "ConnectionDrawingPolicy.h"
 #include "DialogueGraphPinConnectionPolicies.h"
 #include "DialogueSystemEditorModule.h"
 #include "Node/DialogueEdGraphNode.h"
@@ -9,10 +10,10 @@ class FDialogueGraphSchema_SpawnNode final : public FEdGraphSchemaAction
 {
 public:
     FDialogueGraphSchema_SpawnNode(const TSubclassOf<UDialogueEdGraphNode>& InSpawnableNodeClass,
-                                   const FText& InMenuItemName,
-                                   const FText& InMenuDescription,
-                                   const FText& InKeywords,
-                                   const int32 InGrouping = 0)
+                                   const FText&                             InMenuItemName,
+                                   const FText&                             InMenuDescription,
+                                   const FText&                             InKeywords,
+                                   const int32                              InGrouping = 0)
         : FEdGraphSchemaAction(FText::FromString("Dialogue"),
                                InMenuItemName,
                                InMenuDescription,
@@ -22,10 +23,10 @@ public:
     {
     }
 
-    virtual UEdGraphNode* PerformAction(UEdGraph* ParentGraph,
-                                        UEdGraphPin* FromPin,
+    virtual UEdGraphNode* PerformAction(UEdGraph*       ParentGraph,
+                                        UEdGraphPin*    FromPin,
                                         const FVector2D Location,
-                                        bool bSelectNewNode = true) override;
+                                        bool            bSelectNewNode = true) override;
 
 private:
     TSubclassOf<UDialogueEdGraphNode> SpawnableNodeClass = nullptr;
@@ -54,8 +55,9 @@ public: // SchemaContextMenuActions 마우스 우클릭시 호출되는 ContextA
     /// </summary>
     /// <param name="Menu"></param>
     /// <param name="Context"></param>
-    virtual void GetContextMenuActions(UToolMenu* Menu,
+    virtual void GetContextMenuActions(UToolMenu*                    Menu,
                                        UGraphNodeContextMenuContext* Context) const override;
+
     virtual void OnPinConnectionDoubleCicked(UEdGraphPin* PinA, UEdGraphPin* PinB, const FVector2f& GraphPosition) const override;
 
     // PinConnection 핀 연결 가능성 확인, 핀 그리기
@@ -71,18 +73,18 @@ public: // SchemaContextMenuActions 마우스 우클릭시 호출되는 ContextA
     virtual const FPinConnectionResponse CanCreateConnection(const UEdGraphPin* A,
                                                              const UEdGraphPin* B) const override;
 
-    virtual FConnectionDrawingPolicy* CreateConnectionDrawingPolicy(int32 InBackLayerID,
-                                                                    int32 InFrontLayerID,
-                                                                    float InZoomFactor,
-                                                                    const FSlateRect& InClippingRect,
+    virtual FConnectionDrawingPolicy* CreateConnectionDrawingPolicy(int32                    InBackLayerID,
+                                                                    int32                    InFrontLayerID,
+                                                                    float                    InZoomFactor,
+                                                                    const FSlateRect&        InClippingRect,
                                                                     FSlateWindowElementList& InDrawElements,
-                                                                    UEdGraph* InGraphObj) const override;
+                                                                    UEdGraph*                InGraphObj) const override;
 
 public: // BreakPin : 연결 끊기
     virtual void BreakNodeLinks(UEdGraphNode& TargetNode) const override;
 
     virtual void BreakPinLinks(UEdGraphPin& TargetPin,
-                               bool bSendsNodeNotification) const override;
+                               bool         bSendsNodeNotification) const override;
 
 public: // Getter
     virtual FLinearColor GetPinTypeColor(const FEdGraphPinType& PinType) const override;
@@ -96,3 +98,14 @@ private: // Properties
         MakeShared<FSelectNodeOutputPinDupConnection>()
     };
 };
+
+// class FDialogueConnectionDrawingPolicy final : public FConnectionDrawingPolicy
+// {
+// public:
+//     FDialogueConnectionDrawingPolicy(int32 InBackLayerID, int32 InFrontLayerID, float InZoomFactor, const FSlateRect& InClippingRect, FSlateWindowElementList& InDrawElements)
+//         : FConnectionDrawingPolicy(InBackLayerID, InFrontLayerID, InZoomFactor, InClippingRect, InDrawElements)
+//     {
+//     }
+//
+//     // TODO: Knot노드에 대한 그리기 정책 수정 예상 작업공수 (2~3일)
+// };

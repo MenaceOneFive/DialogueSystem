@@ -33,7 +33,11 @@ public class DialogueSystemRuntime : ModuleRules
                 "MovieSceneTracks",
                 "LevelSequence",
                 "TimeManagement",
-                "UMG", "CustomizableSequencerTracks"
+                "UMG",
+                "CustomizableSequencerTracks",
+                "GameplayAbilities",
+                "GameplayTags",
+                "GameplayTasks"
             }
         );
 

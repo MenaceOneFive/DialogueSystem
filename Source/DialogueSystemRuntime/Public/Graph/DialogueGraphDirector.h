@@ -6,6 +6,7 @@
 
 #include "DialogueGraphDirector.generated.h"
 
+class UAbilitySystemComponent;
 class UDialogueGraphNode;
 
 UCLASS()
@@ -14,14 +15,50 @@ class DIALOGUESYSTEMRUNTIME_API UDialogueGraphDirector : public UObject
     GENERATED_BODY()
 
 public:
-    virtual bool CanVisitNode(const TObjectPtr<UFunction>& Function,
+    /// <summary>
+    /// 현재 노드를 방문했었는지 질의하는 메서드
+    /// 만약 같은 재생을 반복할 때 이미 방문 여부를 확인하고 싶다면 세이브 파일 플래그를 확인해야 합니다.
+    /// </summary>
+    /// <param name="GraphNode"> 방문을 확인할 노드</param>
+    UFUNCTION(BlueprintCallable, Category="DialogueSystem|Visit")
+    bool WasNodeVisited(const UDialogueGraphNode* GraphNode) const;
+
+    /// <summary>
+    /// 현재 노드를 방문처리합니다. 
+    /// </summary>
+    /// <param name="GraphNode">방문 처리할 노드</param>
+    UFUNCTION(BlueprintCallable, Category="DialogueSystem|Visit")
+    void MarkNodeAsVisited(const UDialogueGraphNode* GraphNode);
+
+    /// <summary>
+    /// 선택한 노드의 방문기록을 없앱니다. 
+    /// </summary>
+    /// <param name="GraphNode">방문 처리 취소할 노드</param>
+    UFUNCTION(BlueprintCallable, Category="DialogueSystem|Visit")
+    void MarkNodeAsNotVisited(const UDialogueGraphNode* GraphNode);
+
+public: // Getter/Setter
+    UFUNCTION(BlueprintCallable, Category="DialogueSystem|PC")
+    UAbilitySystemComponent* GetPlayerASC() const;
+
+    UFUNCTION(BlueprintCallable, Category="DialogueSystem|PC")
+    void SetPlayerASC(UAbilitySystemComponent* InPlayerASC);
+
+    UFUNCTION(BlueprintCallable, Category="DialogueSystem|PC")
+    ACharacter* GetPlayerCharacter() const;
+
+    UFUNCTION(BlueprintCallable, Category="DialogueSystem|PC")
+    void SetPlayerCharacter(ACharacter* InPlayerCharacter);
+
+public:
+    virtual bool CanVisitNode(const TObjectPtr<UFunction>&                Function,
                               const TObjectPtr<const UDialogueGraphNode>& NextNodeToVisit);
 
-    virtual void WhenVisitThisNode(const TObjectPtr<UFunction>& Function,
+    virtual void WhenVisitThisNode(const TObjectPtr<UFunction>&                Function,
                                    const TObjectPtr<const UDialogueGraphNode>& PrevNode,
                                    const TObjectPtr<const UDialogueGraphNode>& CurrentNode);
 
-#if WITH_EDITOR
+    #if WITH_EDITOR
 
 public: // 이 메서드를 호출하지 마십시오 에디터 타임에 시그니처 제공용으로만 쓰입니다.
     UFUNCTION()
@@ -40,7 +77,21 @@ public: // 이 메서드를 호출하지 마십시오 에디터 타임에 시그
 
     static FName CanSelectThisNodeSignatureName;
     static FName WhenSelectThisNodeSignatureName;
-#endif
+    #endif
+
+protected:
+    UPROPERTY(EditAnywhere)
+    TObjectPtr<UAbilitySystemComponent> PlayerASC;
+
+    UPROPERTY(EditAnywhere)
+    TObjectPtr<ACharacter> PlayerCharacter;
+
+    /// <summary>
+    /// 현재 재생에서 방문한 노드들을 모아놓은 Set
+    /// 만약 같은 재생을 반복할 때 이미 방문 여부를 확인하고 싶다면 세이브 파일 플래그를 확인해야 합니다.
+    /// </summary>
+    UPROPERTY(BlueprintReadOnly)
+    TSet<const UDialogueGraphNode*> VisitedNodes;
 
 private:
     /// <summary>
@@ -54,13 +105,13 @@ private:
     /// <returns></returns>
     template <typename OutputType, typename InputType>
     void InvokeTwoInputBlueprintFunction(TObjectPtr<UFunction> Function,
-                                         OutputType* OutputValue,
-                                         InputType* InInputValue);
+                                         OutputType*           OutputValue,
+                                         InputType*            InInputValue);
 
     template <typename InputType>
     void InvokeTwoInputBlueprintFunction(TObjectPtr<UFunction> Function,
-                                         InputType* InInputValue1,
-                                         InputType* InInputValue2);
+                                         InputType*            InInputValue1,
+                                         InputType*            InInputValue2);
 
     /// <summary>
     /// 블루프린트의 메서드를 안정적으로 호출하기 위해 템플릿으로 작성된 메서드
@@ -72,7 +123,7 @@ private:
     /// <returns></returns>
     template <typename InputType>
     void InvokeInputOnlyBlueprintFunction(TObjectPtr<UFunction> Function,
-                                          InputType* InInputValue);
+                                          InputType*            InInputValue);
 
     /// <summary>
     /// 블루프린트의 메서드를 안정적으로 호출하기 위해 템플릿으로 작성된 메서드
@@ -84,13 +135,13 @@ private:
     /// <returns></returns>
     template <typename OutputType>
     void InvokeOutputOnlyBlueprintFunction(TObjectPtr<UFunction> Function,
-                                           OutputType* OutputValue);
+                                           OutputType*           OutputValue);
 };
 
 template <typename OutputType, typename InputType>
 void UDialogueGraphDirector::InvokeTwoInputBlueprintFunction(TObjectPtr<UFunction> Function,
-                                                             OutputType* OutputValue,
-                                                             InputType* InInputValue)
+                                                             OutputType*           OutputValue,
+                                                             InputType*            InInputValue)
 {
     // Function이 현재 클래스 인스턴스에서 실행할 수 있는지 확인
     ensure(Function->GetOwnerClass()->IsChildOf(GetClass()));
@@ -103,16 +154,16 @@ void UDialogueGraphDirector::InvokeTwoInputBlueprintFunction(TObjectPtr<UFunctio
     const FProperty* OutputProperty = nullptr;
 
     // 프로퍼티를 유형별로 처리
-    for ( TFieldIterator<FProperty> It(Function); It; ++It )
+    for (TFieldIterator<FProperty> It(Function); It; ++It)
     {
         // 반환 유형인 프로퍼티 ( CPF_OutParam(보통 이쪽임), CPF_ReturnParam )
-        if ( It->HasAnyPropertyFlags(CPF_ReturnParm | CPF_OutParm) )
+        if (It->HasAnyPropertyFlags(CPF_ReturnParm | CPF_OutParm))
         {
             OutputProperty = *It;
             continue;
         }
         // 입력에 대한 처리
-        if ( It->HasAnyPropertyFlags(CPF_Parm) && !It->HasAnyPropertyFlags(CPF_ReturnParm | CPF_OutParm) )
+        if (It->HasAnyPropertyFlags(CPF_Parm) && !It->HasAnyPropertyFlags(CPF_ReturnParm | CPF_OutParm))
         {
             InputProperty = *It;
         }
@@ -121,7 +172,7 @@ void UDialogueGraphDirector::InvokeTwoInputBlueprintFunction(TObjectPtr<UFunctio
     check(InputProperty && OutputProperty)
 
     // 프로퍼티를 이용해서 파라메터를 초기화
-    if ( CastField<FObjectProperty>(InputProperty) )
+    if (CastField<FObjectProperty>(InputProperty))
     {
         InputProperty->SetValue_InContainer(FuncParams->GetStructMemory(), &InInputValue);
     }
@@ -134,7 +185,7 @@ void UDialogueGraphDirector::InvokeTwoInputBlueprintFunction(TObjectPtr<UFunctio
     this->ProcessEvent(Function, FuncParams->GetStructMemory());
 
     // 프로퍼티를 이용해서 결과를 추출
-    if ( CastField<FObjectProperty>(OutputProperty) )
+    if (CastField<FObjectProperty>(OutputProperty))
     {
         OutputProperty->GetValue_InContainer(FuncParams->GetStructMemory(), &OutputValue);
     }
@@ -146,8 +197,8 @@ void UDialogueGraphDirector::InvokeTwoInputBlueprintFunction(TObjectPtr<UFunctio
 
 template <typename InputType>
 void UDialogueGraphDirector::InvokeTwoInputBlueprintFunction(TObjectPtr<UFunction> Function,
-                                                             InputType* InInputValue1,
-                                                             InputType* InInputValue2)
+                                                             InputType*            InInputValue1,
+                                                             InputType*            InInputValue2)
 {
     // Function이 현재 클래스 인스턴스에서 실행할 수 있는지 확인
     ensure(Function->GetOwnerClass()->IsChildOf(GetClass()));
@@ -157,7 +208,7 @@ void UDialogueGraphDirector::InvokeTwoInputBlueprintFunction(TObjectPtr<UFunctio
 
     // 사용되는 프로퍼티를 정의
     TFieldIterator<FProperty> It(Function);
-    const FProperty* InputProperty1 = *It;
+    const FProperty*          InputProperty1 = *It;
     ++It;
     const FProperty* InputProperty2 = *(It);
 
@@ -174,7 +225,7 @@ void UDialogueGraphDirector::InvokeTwoInputBlueprintFunction(TObjectPtr<UFunctio
 
 template <typename InputType>
 void UDialogueGraphDirector::InvokeInputOnlyBlueprintFunction(TObjectPtr<UFunction> Function,
-                                                              InputType* InInputValue)
+                                                              InputType*            InInputValue)
 {
     // Function이 현재 클래스 인스턴스에서 실행할 수 있는지 확인
     ensure(Function->GetOwnerClass()->IsChildOf(GetClass()));
@@ -186,10 +237,10 @@ void UDialogueGraphDirector::InvokeInputOnlyBlueprintFunction(TObjectPtr<UFuncti
     const FProperty* InputProperty = nullptr;
 
     // 프로퍼티를 유형별로 처리
-    for ( TFieldIterator<FProperty> It(Function); It; ++It )
+    for (TFieldIterator<FProperty> It(Function); It; ++It)
     {
         // 입력에 대한 처리
-        if ( It->HasAnyPropertyFlags(CPF_Parm) && !It->HasAnyPropertyFlags(CPF_ReturnParm | CPF_OutParm) )
+        if (It->HasAnyPropertyFlags(CPF_Parm) && !It->HasAnyPropertyFlags(CPF_ReturnParm | CPF_OutParm))
         {
             InputProperty = *It;
         }
@@ -198,7 +249,7 @@ void UDialogueGraphDirector::InvokeInputOnlyBlueprintFunction(TObjectPtr<UFuncti
     check(InputProperty)
 
     // 프로퍼티를 이용해서 파라메터를 초기화
-    if ( CastField<FObjectProperty>(InputProperty) )
+    if (CastField<FObjectProperty>(InputProperty))
     {
         InputProperty->SetValue_InContainer(FuncParams->GetStructMemory(), &InInputValue);
     }
@@ -213,7 +264,7 @@ void UDialogueGraphDirector::InvokeInputOnlyBlueprintFunction(TObjectPtr<UFuncti
 
 template <typename OutputType>
 void UDialogueGraphDirector::InvokeOutputOnlyBlueprintFunction(TObjectPtr<UFunction> Function,
-                                                               OutputType* OutputValue)
+                                                               OutputType*           OutputValue)
 {
     // Function이 현재 클래스 인스턴스에서 실행할 수 있는지 확인
     ensure(Function->GetOwnerClass()->IsChildOf(GetClass()));
@@ -225,10 +276,10 @@ void UDialogueGraphDirector::InvokeOutputOnlyBlueprintFunction(TObjectPtr<UFunct
     const FProperty* OutputProperty = nullptr;
 
     // 프로퍼티를 유형별로 처리
-    for ( TFieldIterator<FProperty> It(Function); It; ++It )
+    for (TFieldIterator<FProperty> It(Function); It; ++It)
     {
         // 반환 유형인 프로퍼티 ( CPF_OutParam(보통 이쪽임), CPF_ReturnParam )
-        if ( It->HasAnyPropertyFlags(CPF_ReturnParm | CPF_OutParm) )
+        if (It->HasAnyPropertyFlags(CPF_ReturnParm | CPF_OutParm))
         {
             OutputProperty = *It;
         }
@@ -240,7 +291,7 @@ void UDialogueGraphDirector::InvokeOutputOnlyBlueprintFunction(TObjectPtr<UFunct
     this->ProcessEvent(Function, FuncParams->GetStructMemory());
 
     // 프로퍼티를 이용해서 결과를 추출
-    if ( CastField<FObjectProperty>(OutputProperty) )
+    if (CastField<FObjectProperty>(OutputProperty))
     {
         OutputProperty->GetValue_InContainer(FuncParams->GetStructMemory(), &OutputValue);
     }

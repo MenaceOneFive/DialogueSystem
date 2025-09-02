@@ -49,7 +49,10 @@ public class DialogueSystemEditor : ModuleRules
                 "LevelSequence",
                 "UMG",
                 "BlueprintGraph",
-                "ApplicationCore"
+                "ApplicationCore",
+                "GameplayAbilities",
+                "GameplayTags",
+                "GameplayTasks"
             ]
         );
 
