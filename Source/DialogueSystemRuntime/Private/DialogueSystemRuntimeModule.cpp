@@ -39,7 +39,7 @@ void FDialogueQTENodeDefinition::EvaluateCustomNode(const UDialogueCustomNode* C
             return;
         }
         const TScriptInterface<IDialogueCustomNodeSequencePlayer> SequencePlayerManager(Evaluator);
-        const auto Holder = SequencePlayerManager->GetPlayerHolder(CustomNode);
+        const auto                                                Holder = SequencePlayerManager->GetPlayerHolder(CustomNode);
 
         if (!Holder)
         {
@@ -58,6 +58,7 @@ FRuntimeCustomNodeManager* FDialogueSystemRuntimeModule::GetCustomNodeManager() 
 void FDialogueSystemRuntimeModule::StartupModule()
 {
     IModuleInterface::StartupModule();
+
     CustomNodeManager = MakeUnique<FRuntimeCustomNodeManager>();
     CustomNodeManager->RegisterCustomNodeDefinition(MakeShared<FDialogueQTENodeDefinition>());
 }

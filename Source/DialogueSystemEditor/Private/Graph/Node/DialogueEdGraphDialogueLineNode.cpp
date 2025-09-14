@@ -19,10 +19,8 @@ void UDialogueEdGraphDialogueLineNode::CopyTo(const TObjectPtr<UDialogueLineNode
 {
     LineNode->SetWhenSelectThisNodeFunctionName(GetWhenSelectThisNodeFunctionName());
     LineNode->SetCanSelectThisNodeFunctionName(GetCanSelectThisNodeFunctionName());
-    if (LevelSequenceToPlay)
-    {
-        LineNode->SetLevelSequenceToPlay(LevelSequenceToPlay);
-    }
+    LineNode->SetLevelSequenceToPlay(LevelSequenceToPlay);
+
     FText Name = GetSelectionName();
     LineNode->SetSelectionName(Name);
     LineNode->SetSequencePlaySetting(SequencePlaySetting);

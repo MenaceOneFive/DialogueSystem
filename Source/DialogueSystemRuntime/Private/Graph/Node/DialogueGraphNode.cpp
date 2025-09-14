@@ -45,3 +45,8 @@ FName UDialogueGraphNode::GetWhenSelectThisNodeFunctionName() const
 {
     return WhenSelectThisNodeFunctionName;
 }
+
+FGuid UDialogueGraphNode::GetNodeGuid() const
+{
+    return NodeID;
+}

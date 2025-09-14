@@ -89,7 +89,7 @@ void UDialogueCharacterThumbnailRenderer::Draw(UObject* Object,
     if ( Asset == nullptr || Asset->CharacterProfileImage == nullptr )
     {
         // TODO: 기본 이미지 사용할 것
-        Super::Draw(Object, X, Y, Width, Height, Viewport, Canvas, bAdditionalViewFamily);
+        // Super::Draw(Object, X, Y, Width, Height, Viewport, Canvas, bAdditionalViewFamily);
         return;
     }
 
