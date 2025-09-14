@@ -35,7 +35,7 @@ public:
 
     FDialogueSetting GetDialogueSetting() const;
 
-#if WITH_EDITORONLY_DATA
+    #if WITH_EDITORONLY_DATA
     /// <summary>
     /// 노드의 고유 ID를 설정합니다.
     /// </summary>
@@ -45,9 +45,12 @@ public:
     void SetDialogueSetting(const FDialogueSetting& InDialogueSetting);
 
     virtual void SetWhenSelectThisNodeFunctionName(FName InWhenSelectThisNodeFunctionName = NAME_None) override;
-#endif
+    #endif
 
     virtual FName GetWhenSelectThisNodeFunctionName() const override;
+
+    UFUNCTION(BlueprintCallable, BlueprintPure)
+    FGuid GetNodeGuid() const;
 
 protected:
     UPROPERTY(VisibleAnywhere)

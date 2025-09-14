@@ -227,6 +227,14 @@ void UDialogueRuntimePlayer::VisitEndNode(const TObjectPtr<const UDialogueEndNod
                                           &UDialogueRuntimePlayer::HideSubtitle,
                                           3.0f, false);
     }
+    for (auto& [_, Holder] : SceneNodeToPlayerHolder)
+    {
+        Holder->GetLevelSequencePlayer()->OnFinished.Clear();
+        Holder->GetLevelSequencePlayer()->OnPause.Clear();
+        Holder->GetLevelSequencePlayer()->OnStop.Clear();
+        Holder->GetLevelSequencePlayer()->Stop();
+        Holder->GetLevelSequencePlayer()->SetDisableCameraCuts(true);
+    }
 
     CurrentHolder = nullptr;
     NextNode      = nullptr;
@@ -243,7 +251,7 @@ void UDialogueRuntimePlayer::VisitCustomNode(const TObjectPtr<const UDialogueCus
     // 커스텀 노드의 데이터를 이용한 처리
     if (const auto Definition = Module->GetCustomNodeManager()->GetDefinitionOfCustomNode(CustomNode->GetClass()))
     {
-        // Visitor를 넘기는 것이 맞을까?
+        ApplyDialogueUISetting(CustomNode->GetDialogueSetting());
         Definition->EvaluateCustomNode(CustomNode, this);
     }
     else
@@ -284,6 +292,7 @@ void UDialogueRuntimePlayer::InitializeSequencePlayer(const ULevelSequencePlayer
     SequencePlayer->OnStop.Clear();
     SequencePlayer->OnPause.Clear();
     SequencePlayer->OnFinished.Clear();
+    SequencePlayer->SetDisableCameraCuts(false);
 
     // 시퀀스 플레이어의 델리게이트는 입/출력이 없는 다이나믹 델리게이트
     // 근데 다른 노드 방문 처리를 위해서는 방문에 대한 정보가 필요한 상황
@@ -613,7 +622,7 @@ void UDialogueRuntimePlayer::ApplySequencePlaybackSetting(ULevelSequencePlayer* 
 {
     FMovieSceneSequencePlaybackSettings Settings;
     Settings.bAutoPlay                     = false;
-    Settings.bPauseAtEnd                   = false;
+    Settings.bPauseAtEnd                   = true;
     Settings.StartTime                     = PlaySetting.StartTimeOfSequence;
     Settings.bDisableMovementInput         = PlaySetting.bShouldBlockPlayerMovementDuringDialogue;
     Settings.bDisableLookAtInput           = PlaySetting.bShouldBlockPlayerCameraMovementDuringDialogue;
